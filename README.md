@@ -1,7 +1,10 @@
+<<<<<<< HEAD
 # Proyecto: NailMakeupApp - Tienda de Nail Art
 
 ## Descripción
 **NailMakeupApp** es una aplicación web full-stack diseñada para una tienda en línea especializada en productos de Nail Art. Permite la gestión completa de productos (visualización, adición, edición y eliminación dinámica), así como la carga de imágenes, facilitando una experiencia de usuario interactiva y una administración de inventario eficiente. La aplicación cuenta con un sistema de autenticación de usuarios y roles, asegurando que las operaciones críticas de gestión de productos estén restringidas a administradores.
+
+=======
 
 ## Tecnologías Utilizadas
 * **Backend:**
@@ -180,3 +183,7 @@ Con todas las funcionalidades principales ya implementadas, los próximos pasos 
 ---
 
 © 2025 Mi Tienda NailMakeupApp. Todos los derechos reservados @bgtellezg
+=======
+# NailMakeupApp
+es una aplicación web full-stack diseñada para una tienda en línea especializada en productos de Nail Art
+>>>>>>> origin/main
