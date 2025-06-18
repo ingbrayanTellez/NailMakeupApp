@@ -1,0 +1,593 @@
+/* Estilos Generales y Reset */
+:root {
+    /* Paleta de Colores para Nail Art */
+    --primary-color: #d1b61cde; /* Dorado - Para headers, botones primarios */
+    --secondary-color: #C0C0C0; /* Plata - Para acentos, hover de botones */
+    --accent-color: #de8f44; /* Cobre - Para fondos sutiles, bordes */
+    --text-dark: #333; /* Texto oscuro principal */
+    --text-light: #f4f4f4; /* Texto claro */
+    --bg-light: #FFFFFF; /* Fondo principal claro */
+    --bg-subtle: #FDF9FA; /* Fondo sutil para secciones */
+    --border-color: #ECECEC; /* Borde general */
+    --error-color: #E0115F; /* Rubí para errores/eliminar */
+    --success-color: #00B388; /* Verde Jamin para éxito (un tono fresco y vibrante) */
+}
+
+*, *::before, *::after {
+    box-sizing: border-box; /* Incluye padding y border en el tamaño del elemento */
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-subtle); /* Fondo sutil */
+    color: var(--text-dark);
+    line-height: 1.6;
+    scroll-behavior: smooth; /* Desplazamiento suave */
+}
+
+.container {
+    max-width: 1200px; /* Ancho máximo para diseños modernos */
+    margin: auto;
+    padding: 0 20px;
+}
+
+/* Header y Navegación */
+header {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header .container {
+    display: flex; /* Permite que el logo y la navegación estén en la misma línea */
+    align-items: center; /* Alinea verticalmente al centro */
+    justify-content: space-between; /* Espacia el logo de la navegación */
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+}
+
+.logo-container {
+    margin-right: 20px; /* Ajusta este margen si el logo está muy pegado a la navegación */
+}
+
+.header-logo {
+    max-width: 150px; /* Ajusta el ancho máximo de tu logo */
+    height: auto; /* Mantiene la proporción de la imagen */
+    vertical-align: middle; /* Alineación vertical */
+}
+
+/* Si quieres que el logo sea clickeable y tenga algún efecto visual */
+.logo-container a {
+    text-decoration: none;
+    color: inherit; /* Hereda el color del texto si lo hubiera */
+}
+
+
+header nav ul {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    flex-wrap: wrap;
+    justify-content: center; /* Centra los elementos de la navegación */
+}
+
+header nav ul li {
+    margin: 0 15px;
+}
+
+header nav ul li a {
+    color: var(--text-light);
+    text-decoration: none;
+    font-weight: bold;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+header nav ul li a:hover {
+    background-color: var(--secondary-color);
+    color: var(--bg-light);
+}
+
+/* Secciones Generales */
+section {
+    padding: 40px 0;
+    margin-bottom: 20px;
+    background-color: var(--bg-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+section h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+/* Botones */
+.btn {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background-color: #6c757d; /* Gris */
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+/* Mensajes de Alerta y Validación */
+.message-container {
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    display: none; /* Por defecto oculto, lo mostrará JavaScript */
+    text-align: center;
+}
+
+.message-container.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message-container.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.validation-error {
+    color: var(--error-color);
+    font-size: 0.85em;
+    margin-top: 5px;
+    display: block; /* Para que ocupe su propia línea */
+}
+
+/* Secciones Ocultas */
+.hidden-section {
+    display: none;
+}
+
+.current-section {
+    display: block;
+}
+
+/* Sección de Inicio (Hero) - Nuevo Diseño */
+.hero-section {
+    position: relative; /* Necesario para posicionar el overlay y el contenido */
+    height: 500px; /* Altura del hero, ajusta según necesidad */
+    display: flex;
+    align-items: center; /* Centra el contenido verticalmente */
+    justify-content: center; /* Centra el contenido horizontalmente */
+    text-align: center;
+    color: white; /* Color del texto sobre la imagen de fondo */
+    background-image: url('../img/hero-bg.jpg'); /* RUTA DE TU IMAGEN DE FONDO */
+    background-size: cover; /* Cubre todo el área sin distorsionar */
+    background-position: center center; /* Centra la imagen */
+    background-repeat: no-repeat;
+    box-shadow: none; /* Quita la sombra por defecto de la sección */
+    overflow: hidden; /* Asegura que la imagen no se salga */
+}
+
+.hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4); /* Overlay oscuro para mayor legibilidad del texto */
+    z-index: 1; /* Asegura que el overlay esté sobre la imagen de fondo */
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2; /* Asegura que el contenido esté sobre el overlay */
+    max-width: 800px; /* Ancho máximo para el contenido de texto */
+    padding: 20px;
+}
+
+.hero-subtitle {
+    font-size: 1.2em;
+    font-weight: 500;
+    margin-bottom: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent-color); /* Color de acento para la palabra "NUEVO" */
+}
+
+.hero-title {
+    font-size: 4em; /* Título más grande para el impacto */
+    margin-bottom: 20px;
+    font-weight: 700;
+    line-height: 1.1;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Sombra para el texto */
+}
+
+.hero-description {
+    font-size: 1.3em;
+    margin-bottom: 30px;
+    font-weight: 300;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hero-btn {
+    background-color: var(--secondary-color); /* Un color de botón que contraste */
+    border: 2px solid white; /* Borde blanco para resaltar */
+    color: white;
+    padding: 15px 35px;
+    font-size: 1.1em;
+}
+
+.hero-btn:hover {
+    background-color: var(--primary-color); /* Cambia al color primario al hover */
+    border-color: var(--primary-color);
+}
+
+
+/* Filtros de Productos */
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: var(--bg-subtle);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.filters input[type="text"],
+.filters input[type="number"],
+.filters select {
+    padding: 10px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+    flex: 1; /* Permite que los inputs crezcan */
+    min-width: 150px; /* Ancho mínimo para que no se hagan demasiado pequeños */
+}
+
+.filters button {
+    flex-shrink: 0; /* Evita que los botones se encojan */
+}
+
+
+/* =====================================================================
+   SECCIONES DE PRODUCTOS Y GRILLA (EFECTO DIAGONAL)
+   ===================================================================== */
+
+.product-grid {
+    display: flex; /* Usamos flexbox para el contenedor */
+    flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea */
+    justify-content: center; /* Centra los elementos horizontalmente */
+    gap: 0px; /* Reducimos o eliminamos el gap para permitir el solapamiento */
+    padding: 20px;
+    position: relative; /* Es importante para que z-index funcione en los hijos */
+    overflow: hidden; /* Oculta cualquier parte de los productos que sobresalga demasiado del contenedor */
+    max-width: 1200px; /* Ancho máximo para que los productos no se estiren demasiado en pantallas grandes */
+    margin: 20px auto; /* Centra la cuadrícula en la página */
+}
+
+.product-card {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    text-align: center;
+    width: 280px; /* Ancho fijo para cada tarjeta, ajusta según necesidad */
+    margin: 10px; /* Un pequeño margen alrededor de cada tarjeta para evitar solapamiento excesivo */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.1s ease;
+    cursor: pointer;
+
+    /* --- ESTILOS CLAVE PARA LA DIAGONAL --- */
+    position: relative; /* Necesario para z-index y transformaciones */
+    transform-origin: center center; /* El punto alrededor del cual rota */
+    
+    /* Por defecto, un poco rotado y desplazado.
+       Ajusta el 'rotate' y 'translate' para el grado de diagonalidad y solapamiento. */
+    transform: rotate(2deg) translateX(10px) translateY(10px); 
+    
+    z-index: 1; /* Valor por defecto bajo */
+}
+
+/* Efecto al pasar el ratón (hover) */
+.product-card:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    /* Al hacer hover, lo rotamos un poco más y lo movemos hacia el frente (z-index) */
+    transform: rotate(0deg) scale(1.05) translateX(0) translateY(0); /* Lo endereza un poco y lo agranda */
+    z-index: 10; /* Lo trae al frente al hacer hover */
+}
+
+/* Opcional: Para el primer elemento de cada fila o un patrón más complejo
+   Puedes usar selectores como :nth-child(even), :nth-child(odd)
+   para aplicar rotaciones alternas y crear un patrón más interesante. */
+.product-card:nth-child(even) { /* Cada segunda tarjeta */
+    transform: rotate(-2deg) translateX(-10px) translateY(10px); /* Rotación inversa y desplazamiento */
+}
+
+.product-card:nth-child(even):hover {
+    transform: rotate(0deg) scale(1.05) translateX(0) translateY(0);
+}
+
+
+/* Asegúrate de que las imágenes dentro de la tarjeta se ajusten */
+.product-card img {
+    max-width: 100%;
+    height: 180px; /* Altura fija para las imágenes */
+    object-fit: cover; /* Recorta la imagen si es necesario para cubrir el espacio */
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.product-card .product-info h3 {
+    font-size: 1.2em;
+    margin-bottom: 5px;
+}
+
+.product-card .product-info p {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.product-card .product-price {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #007bff; /* Color para el precio */
+    margin-top: 10px;
+}
+
+/* Estilos para los botones de acción (editar/eliminar) */
+.product-actions {
+    margin-top: 15px;
+}
+
+.product-actions button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 0 5px;
+    transition: background-color 0.3s ease;
+}
+
+.product-actions button.edit-btn {
+    background-color: #28a745; /* Verde para editar */
+}
+
+.product-actions button.delete-btn {
+    background-color: #dc3545; /* Rojo para eliminar */
+}
+
+.product-actions button:hover {
+    opacity: 0.9;
+}
+
+/* Mensaje cuando no hay productos */
+#no-products-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #777;
+    margin-top: 50px;
+    width: 100%; /* Asegura que ocupe todo el ancho del contenedor flex */
+}
+
+/* Paginación */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.pagination button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: var(--secondary-color);
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#page-info {
+    font-size: 1.1em;
+    color: var(--text-dark);
+}
+
+/* Formularios (Login, Registro, Añadir Producto) */
+form {
+    background-color: var(--bg-light);
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    max-width: 500px;
+    margin: 30px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    font-size: 1em;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input[type="file"] {
+    padding: 5px; /* Menos padding para el input de tipo file */
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+.file-name-display {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #555;
+}
+
+form button[type="submit"] {
+    width: auto;
+    align-self: flex-start; /* Alinea el botón a la izquierda */
+    margin-top: 10px;
+}
+
+/* Footer */
+footer {
+    background-color: var(--text-dark);
+    color: var(--text-light);
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Media Queries para Responsividad */
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    header nav ul {
+        margin-top: 15px;
+        flex-direction: column;
+        gap: 10px; /* Espacio entre ítems de menú en móvil */
+    }
+
+    header nav ul li {
+        margin: 0; /* Resetear margen horizontal */
+    }
+
+    .filters {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .filters input,
+    .filters select,
+    .filters button {
+        width: 90%; /* Ajusta el ancho de los filtros en pantallas pequeñas */
+        max-width: 300px;
+    }
+
+    /* Ajustes para el Hero en pantallas pequeñas */
+    .hero-section {
+        height: 400px; /* Menor altura en móviles */
+    }
+
+    .hero-title {
+        font-size: 2.8em; /* Ajusta el tamaño del título del hero */
+    }
+
+    .hero-description {
+        font-size: 1em; /* Ajusta el tamaño de la descripción */
+    }
+
+    .hero-btn {
+        padding: 12px 25px;
+        font-size: 1em;
+    }
+
+
+    /* Deshabilitar rotación diagonal en pantallas pequeñas */
+    .product-card {
+        width: 90%; /* Ajusta el ancho de las tarjetas en pantallas pequeñas */
+        margin: 15px auto; /* Centra las tarjetas y da más margen */
+        transform: none !important; /* Desactiva la rotación */
+        z-index: 1; /* Asegura el z-index normal */
+    }
+    .product-card:hover {
+        transform: scale(1.03) !important; /* Solo escalar en hover para móviles */
+    }
+    .product-card:nth-child(even) {
+        transform: none !important; /* Desactiva la rotación alternativa */
+    }
+    .product-card:nth-child(even):hover {
+        transform: scale(1.03) !important;
+    }
+
+
+    form {
+        padding: 20px;
+        gap: 15px;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2.2em; /* Título aún más pequeño en pantallas muy chicas */
+    }
+}
