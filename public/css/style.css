@@ -1,101 +1,204 @@
-/* Estilos Generales y Reset */
+/* =====================================================================
+   VARIABLES CSS (COLORES, FUENTES, SOMBRAS)
+   ===================================================================== */
 :root {
-    /* Paleta de Colores para Nail Art */
-    --primary-color: #d6987bde; /* Naranja Fuerte - Para headers, botones primarios */
-    --secondary-color: #C0C0C0; /* Plata - Para acentos, hover de botones */
-    --accent-color: #93e08c; /* Cobre - Para fondos sutiles, bordes */
-    --text-dark: #333; /* Texto oscuro principal */
-    --text-light: #f4f4f4; /* Texto claro */
-    --bg-light: #FFFFFF; /* Fondo principal claro */
-    --bg-subtle: #FDF9FA; /* Fondo sutil para secciones */
-    --border-color: #ECECEC; /* Borde general */
-    --error-color: #E0115F; /* Rubí para errores/eliminar */
-    --success-color: #00B388; /* Verde Jamin para éxito (un tono fresco y vibrante) */
+    --primary-color: #ff69b4; /* Rosa vibrante */
+    --secondary-color: #8a2be2; /* Azul violeta */
+    --accent-color: #00bcd4; /* Cian para acentos */
+    --text-dark: #333;
+    --text-light: #fff;
+    --bg-light: #ffffff;
+    --bg-dark: #f0f2f5;
+    --bg-subtle: #f8f8f8; /* Gris muy claro para fondos sutiles */
+    --border-color: #ddd;
+    --success-color: #28a745;
+    --error-color: #dc3545;
+    --warning-color: #ffc107;
+    --font-family: 'Arial', sans-serif;
+    --box-shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --box-shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
-*, *::before, *::after {
-    box-sizing: border-box; /* Incluye padding y border en el tamaño del elemento */
+/* =====================================================================
+   RESETS BÁSICOS Y ESTILOS GLOBALES
+   ===================================================================== */
+* {
     margin: 0;
     padding: 0;
+    box-sizing: border-box;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Fuente más moderna */
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-subtle); /* Fondo sutil */
-    color: var(--text-dark);
+    font-family: var(--font-family);
     line-height: 1.6;
-    scroll-behavior: smooth; /* Desplazamiento suave */
+    color: var(--text-dark);
+    background-color: var(--bg-dark); /* Fondo general de la página */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
 .container {
-    max-width: 1200px; /* Ancho máximo para diseños modernos */
-    margin: auto;
+    max-width: 1200px;
+    margin: 0 auto;
     padding: 0 20px;
 }
 
-/* Header y Navegación */
-header {
-    background-color: var(--primary-color);
-    color: var(--text-light);
-    padding: 15px 0;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.3s ease;
 }
 
-header .container {
-    display: flex; /* Permite que el logo y la navegación estén en la misma línea */
-    align-items: center; /* Alinea verticalmente al centro */
-    justify-content: space-between; /* Espacia el logo de la navegación */
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+a:hover {
+    color: var(--secondary-color);
+}
+
+ul {
+    list-style: none;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-dark);
+    margin-bottom: 0.8em;
+}
+
+h2 {
+    font-size: 2.2em;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 40px;
+}
+
+/* =====================================================================
+   HEADER
+   ===================================================================== */
+.header {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    padding: 15px 0;
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--box-shadow-light);
+}
+
+.header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Permite que el contenido se envuelva en pantallas pequeñas */
 }
 
 .logo-container {
-    margin-right: 20px; /* Ajusta este margen si el logo está muy pegado a la navegación */
+    display: flex;
+    align-items: center;
 }
 
 .header-logo {
-    max-width: 150px; /* Ajusta el ancho máximo de tu logo */
-    height: auto; /* Mantiene la proporción de la imagen */
-    vertical-align: middle; /* Alineación vertical */
+    height: 50px; /* Tamaño del logo */
+    margin-right: 10px;
 }
 
-/* Si quieres que el logo sea clickeable y tenga algún efecto visual */
-.logo-container a {
-    text-decoration: none;
-    color: inherit; /* Hereda el color del texto si lo hubiera */
-}
-
-
-header nav ul {
-    list-style: none;
-    display: flex;
-    margin: 0;
-    padding: 0;
-    flex-wrap: wrap;
-    justify-content: center; /* Centra los elementos de la navegación */
-}
-
-header nav ul li {
-    margin: 0 15px;
-}
-
-header nav ul li a {
-    color: var(--text-light);
-    text-decoration: none;
+.logo-text {
+    font-size: 1.8em;
     font-weight: bold;
-    padding: 8px 12px;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    color: var(--primary-color);
+    white-space: nowrap; /* Evita que el texto del logo se rompa */
 }
 
-header nav ul li a:hover {
-    background-color: var(--secondary-color);
-    color: var(--bg-light);
+.header nav ul {
+    display: flex;
+    gap: 25px; /* Espacio entre los elementos del menú */
 }
 
-/* Secciones Generales */
+.header nav ul li a {
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: 1.05em;
+    padding: 5px 0;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.header nav ul li a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background-color: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.header nav ul li a:hover::after {
+    width: 100%;
+}
+
+/* =====================================================================
+   HERO SECTION (HOME)
+   ===================================================================== */
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/hero-bg.jpg') no-repeat center center/cover;
+    color: var(--text-light);
+    text-align: center; /* ESTO ES LO QUE CENTRA EL TEXTO */
+    padding: 100px 20px;
+    min-height: 500px;
+    display: flex; /* Asegura que el contenido pueda ser centrado verticalmente */
+    align-items: center; /* Centra verticalmente el contenido dentro de la sección */
+    justify-content: center; /* Centra horizontalmente el contenido dentro de la sección si es un flex container */
+    border-radius: 8px;
+    margin: 20px auto;
+    max-width: 1200px;
+}
+
+.hero-content {
+    max-width: 800px;
+    /* No necesitas text-align: center aquí si ya está en .hero-section */
+}
+
+.hero-subtitle {
+    font-size: 1.5em;
+    color: var(--accent-color);
+    margin-bottom: 10px;
+    /* Asegúrate de que no haya un text-align: left en otro lugar que lo sobrescriba */
+}
+
+.hero-title {
+    font-size: 3.5em;
+    margin-bottom: 20px;
+    color: var(--text-light);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    /* Asegúrate de que no haya un text-align: left en otro lugar que lo sobrescriba */
+}
+
+.hero-title {
+    font-size: 3.5em;
+    margin-bottom: 20px;
+    color: var(--text-light);
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-description {
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    opacity: 0.9;
+}
+
+.hero-btn {
+    padding: 15px 30px;
+    font-size: 1.1em;
+}
+
+/* =====================================================================
+   SECCIONES GENERALES Y VISIBILIDAD
+   ===================================================================== */
+main {
+    padding: 20px 0;
+}
+
 section {
+    display: none; /* Por defecto, todas las secciones están ocultas */
     padding: 40px 0;
     margin-bottom: 20px;
     background-color: var(--bg-light);
@@ -103,27 +206,28 @@ section {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-section h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 30px;
-    font-size: 2.5em;
-    font-weight: 700;
+.current-section {
+    display: block; /* Muestra la sección activa */
 }
 
-/* Botones */
+.hidden-section {
+    display: none; /* Para JavaScript que use esta clase para ocultar */
+}
+
+/* =====================================================================
+   BOTONES
+   ===================================================================== */
 .btn {
     display: inline-block;
     background-color: var(--primary-color);
-    color: white;
-    padding: 12px 25px;
+    color: var(--text-light);
+    padding: 10px 20px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
-    font-weight: bold;
-    text-decoration: none;
     transition: background-color 0.3s ease, transform 0.2s ease;
+    text-align: center;
 }
 
 .btn:hover {
@@ -132,20 +236,100 @@ section h2 {
 }
 
 .btn-secondary {
-    background-color: #6c757d; /* Gris */
+    background-color: #6c757d; /* Gris oscuro */
 }
 
 .btn-secondary:hover {
     background-color: #5a6268;
 }
 
-/* Mensajes de Alerta y Validación */
-.message-container {
-    padding: 10px;
+.btn-danger {
+    background-color: var(--error-color);
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-success {
+    background-color: var(--success-color);
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 0.9em;
+}
+
+/* =====================================================================
+   FORMULARIOS
+   ===================================================================== */
+form {
+    background-color: var(--bg-light);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: var(--box-shadow-medium);
+    max-width: 500px;
+    margin: 30px auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-dark);
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--border-color);
     border-radius: 5px;
-    margin-bottom: 15px;
-    display: none; /* Por defecto oculto, lo mostrará JavaScript */
+    font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255, 105, 180, 0.2);
+    outline: none;
+}
+
+.validation-error {
+    color: var(--error-color);
+    font-size: 0.9em;
+    margin-top: 5px;
+    display: block;
+}
+
+.message-container {
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    font-weight: 500;
     text-align: center;
+    opacity: 0; /* Oculto por defecto */
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.message-container.show {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .message-container.success {
@@ -160,105 +344,29 @@ section h2 {
     border: 1px solid #f5c6cb;
 }
 
-.validation-error {
-    color: var(--error-color);
-    font-size: 0.85em;
+.message-container.warning {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.file-name-display {
+    font-size: 0.9em;
+    color: #666;
     margin-top: 5px;
-    display: block; /* Para que ocupe su propia línea */
-}
-
-/* Secciones Ocultas */
-.hidden-section {
-    display: none;
-}
-
-.current-section {
     display: block;
 }
 
-/* Sección de Inicio (Hero) - Nuevo Diseño */
-.hero-section {
-    position: relative; /* Necesario para posicionar el overlay y el contenido */
-    height: 500px; /* Altura del hero, ajusta según necesidad */
-    display: flex;
-    align-items: center; /* Centra el contenido verticalmente */
-    justify-content: center; /* Centra el contenido horizontalmente */
-    text-align: center;
-    color: white; /* Color del texto sobre la imagen de fondo */
-    background-image: url('../img/hero-bg.jpg'); /* RUTA DE TU IMAGEN DE FONDO */
-    background-size: cover; /* Cubre todo el área sin distorsionar */
-    background-position: center center; /* Centra la imagen */
-    background-repeat: no-repeat;
-    box-shadow: none; /* Quita la sombra por defecto de la sección */
-    overflow: hidden; /* Asegura que la imagen no se salga */
-}
-
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.4); /* Overlay oscuro para mayor legibilidad del texto */
-    z-index: 1; /* Asegura que el overlay esté sobre la imagen de fondo */
-}
-
-.hero-content {
-    position: relative;
-    z-index: 2; /* Asegura que el contenido esté sobre el overlay */
-    max-width: 800px; /* Ancho máximo para el contenido de texto */
-    padding: 20px;
-}
-
-.hero-subtitle {
-    font-size: 1.2em;
-    font-weight: 500;
-    margin-bottom: 10px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--accent-color); /* Color de acento para la palabra "NUEVO" */
-}
-
-.hero-title {
-    font-size: 4em; /* Título más grande para el impacto */
-    margin-bottom: 20px;
-    font-weight: 700;
-    line-height: 1.1;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3); /* Sombra para el texto */
-}
-
-.hero-description {
-    font-size: 1.3em;
-    margin-bottom: 30px;
-    font-weight: 300;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.hero-btn {
-    background-color: var(--secondary-color); /* Un color de botón que contraste */
-    border: 2px solid white; /* Borde blanco para resaltar */
-    color: white;
-    padding: 15px 35px;
-    font-size: 1.1em;
-}
-
-.hero-btn:hover {
-    background-color: var(--primary-color); /* Cambia al color primario al hover */
-    border-color: var(--primary-color);
-}
-
-
-/* Filtros de Productos */
+/* =====================================================================
+   SECCIÓN PRODUCTOS
+   ===================================================================== */
 .filters {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
     justify-content: center;
     margin-bottom: 30px;
-    padding: 15px;
+    padding: 20px;
     background-color: var(--bg-subtle);
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -266,23 +374,20 @@ section h2 {
 
 .filters input[type="text"],
 .filters input[type="number"],
-.filters select {
+.filters select,
+.filters button {
     padding: 10px 15px;
     border: 1px solid var(--border-color);
     border-radius: 5px;
     font-size: 1em;
-    flex: 1; /* Permite que los inputs crezcan */
-    min-width: 150px; /* Ancho mínimo para que no se hagan demasiado pequeños */
+    flex: 1; /* Permite que los elementos se estiren */
+    min-width: 150px; /* Ancho mínimo para que no se compriman demasiado */
 }
 
 .filters button {
     flex-shrink: 0; /* Evita que los botones se encojan */
+    min-width: 120px;
 }
-
-
-/* =====================================================================
-   SECCIONES DE PRODUCTOS Y GRILLA (EFECTO DIAGONAL)
-   ===================================================================== */
 
 .product-grid {
     display: flex; /* Usamos flexbox para el contenedor */
@@ -437,157 +542,500 @@ section h2 {
     color: var(--text-dark);
 }
 
-/* Formularios (Login, Registro, Añadir Producto) */
-form {
+/* =====================================================================
+   SECCIÓN MI CUENTA (REESTRUCTURADA)
+   ===================================================================== */
+
+#my-account h2 {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 30px; /* Más espacio debajo del título principal */
+}
+
+/* Contenedor Flexbox para la información del usuario y las actividades */
+.my-account-content {
+    display: flex;
+    flex-wrap: wrap; /* Permite que los elementos se envuelvan */
+    justify-content: center; /* Centra los elementos horizontalmente por defecto */
+    gap: 30px; /* Espacio entre la tarjeta de info y las actividades */
+    width: 100%; /* Ocupa todo el ancho disponible del .container */
+    max-width: 1200px; /* Mismo que tu .container general */
+    margin: 0 auto 30px auto; /* Centra y añade margen inferior */
+}
+
+/* Estilos para la tarjeta de Información del Usuario (derecha en escritorio) */
+.user-info-card {
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    width: 100%; /* Por defecto ocupa el 100% en móvil */
+    max-width: 450px; /* Ancho máximo para la tarjeta en escritorio */
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    order: 2; /* Por defecto se muestra después de las actividades en flexbox */
+}
+
+.user-info-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.6em;
+    text-align: center;
+}
+
+.user-info-card p {
+    font-size: 1.05em;
+    color: var(--text-dark);
+    line-height: 1.5;
+    display: flex; /* Para alinear el strong y el span */
+    align-items: baseline;
+    flex-wrap: wrap; /* Envolver en caso de texto largo */
+}
+
+.user-info-card p strong {
+    color: var(--primary-color);
+    margin-right: 10px;
+    min-width: 70px; /* Ancho mínimo para las etiquetas (Nombre:, Email:, Rol:) */
+    display: inline-block; /* Para que min-width funcione */
+}
+
+.profile-avatar {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.profile-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.profile-avatar .btn.btn-small {
+    padding: 8px 15px;
+    font-size: 0.85em;
+}
+
+.profile-actions-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center; /* Centra los botones dentro de la tarjeta */
+    flex-wrap: wrap; /* Asegura que los botones se envuelvan en móviles */
+}
+
+
+/* Estilos para "Mis Actividades" (izquierda en escritorio) */
+.user-activities {
+    background-color: var(--bg-light);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+    width: 100%; /* Por defecto ocupa el 100% en móvil */
+    max-width: 650px; /* Ancho máximo para la sección de actividades en escritorio */
+    text-align: left;
+    order: 1; /* Se mostrará primero en el orden de flexbox */
+}
+
+.user-activities h3 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 1.8em;
+    text-align: center;
+}
+
+.user-activities h4 {
+    color: var(--text-dark);
+    margin-top: 25px;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+}
+
+.activity-list {
+    list-style: none;
+    padding: 0;
+}
+
+.activity-item {
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+    color: var(--text-dark);
+    flex-wrap: wrap; /* Permite que el contenido se envuelva en móviles */
+}
+
+.activity-item span:first-child {
+    flex-grow: 1; /* Permite que el texto de la actividad ocupe el espacio */
+    margin-right: 10px; /* Espacio entre la descripción y la fecha */
+}
+
+.activity-item .timestamp {
+    font-size: 0.85em;
+    color: #777;
+    white-space: nowrap; /* Evita que la fecha y hora se partan */
+    text-align: right;
+}
+
+/* Ocultar los formularios de edición por defecto */
+#edit-profile-form-container,
+#change-password-form-container {
     background-color: var(--bg-light);
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     max-width: 500px;
     margin: 30px auto;
-    display: flex;
-    flex-direction: column;
+    display: none; /* Asegúrate de que JavaScript controle la visibilidad */
+    flex-direction: column; /* Para mantener el formato de formulario */
     gap: 20px;
 }
 
-.form-group {
-    margin-bottom: 15px;
+/* Mostrar los formularios cuando se activen por JS */
+#edit-profile-form-container.active,
+#change-password-form-container.active {
+    display: flex;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: bold;
-    color: var(--text-dark);
+#admin-dashboard {
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
-.form-group input[type="text"],
-.form-group input[type="email"],
-.form-group input[type="password"],
-.form-group input[type="number"],
-.form-group select,
-.form-group textarea {
-    width: 100%;
-    padding: 12px;
+#admin-dashboard h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+/* Filtros para la gestión de usuarios (similar a productos) */
+.user-management-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
+    padding: 15px;
+    background-color: var(--bg-subtle);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.user-management-filters input[type="text"],
+.user-management-filters select,
+.user-management-filters button {
+    padding: 10px 15px;
     border: 1px solid var(--border-color);
     border-radius: 5px;
     font-size: 1em;
-    transition: border-color 0.3s ease;
+    flex: 1;
+    min-width: 150px;
 }
 
-.form-group input[type="file"] {
-    padding: 5px; /* Menos padding para el input de tipo file */
+.user-management-filters button {
+    flex-shrink: 0;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-    border-color: var(--primary-color);
-    outline: none;
+/* Tabla de Usuarios para Administrador */
+.user-table-container {
+    overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
+    margin-top: 20px;
+    background-color: var(--bg-light); /* Fondo para la tabla */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-.file-name-display {
-    display: block;
-    margin-top: 5px;
+.user-table {
+    width: 100%;
+    border-collapse: collapse; /* Elimina el espacio entre las celdas */
+    margin-bottom: 20px;
+    min-width: 700px; /* Ancho mínimo para la tabla en pantallas pequeñas */
+}
+
+.user-table th,
+.user-table td {
+    border: 1px solid var(--border-color);
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle; /* Alinea el contenido verticalmente en el medio */
+}
+
+.user-table th {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    font-weight: bold;
+    text-transform: uppercase;
     font-size: 0.9em;
-    color: #555;
 }
 
-form button[type="submit"] {
-    width: auto;
-    align-self: flex-start; /* Alinea el botón a la izquierda */
-    margin-top: 10px;
+.user-table tr:nth-child(even) {
+    background-color: var(--bg-subtle); /* Fondo sutil para filas pares */
 }
 
-/* Footer */
+.user-table tr:hover {
+    background-color: #f0f0f0; /* Ligero hover en filas */
+}
+
+.user-table .user-actions {
+    display: flex;
+    gap: 8px; /* Espacio entre los botones de acción */
+    justify-content: flex-start; /* Alinea los botones a la izquierda */
+    flex-wrap: wrap; /* Permite que los botones se envuelvan */
+}
+
+.user-table .user-actions select,
+.user-table .user-actions button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.user-table .user-actions select {
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    color: var(--text-dark);
+    flex-grow: 1; /* Permite que el select crezca */
+}
+
+.user-table .user-actions button.save-role-btn {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.user-table .user-actions button.save-role-btn:hover {
+    background-color: #008f6b; /* Un tono un poco más oscuro de success-color */
+}
+
+.user-table .user-actions button.delete-user-btn {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.user-table .user-actions button.delete-user-btn:hover {
+    background-color: #c20f4c; /* Un tono un poco más oscuro de error-color */
+}
+
+/* Mensaje cuando no hay usuarios para mostrar */
+#no-users-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #777;
+    margin-top: 50px;
+    width: 100%;
+}
+
+/* =====================================================================
+   FOOTER
+   ===================================================================== */
 footer {
     background-color: var(--text-dark);
     color: var(--text-light);
     text-align: center;
     padding: 20px 0;
     margin-top: 40px;
-    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #444;
 }
 
-/* Media Queries para Responsividad */
+footer p {
+    font-size: 0.9em;
+    margin: 0;
+}
+
+/* =====================================================================
+   MEDIA QUERIES (RESPONSIVIDAD)
+   ===================================================================== */
+
+/* Para pantallas medianas (tablets y algunos laptops) */
+@media (min-width: 769px) {
+    .header .container {
+        flex-wrap: nowrap; /* Evita que el logo y la nav se envuelvan */
+    }
+
+    .header nav ul {
+        gap: 30px;
+    }
+
+    /* Distribución de "Mi Cuenta" en dos columnas */
+    .my-account-content {
+        justify-content: space-between; /* Espacia las dos columnas en escritorio */
+        align-items: flex-start; /* Alinea los elementos en la parte superior */
+    }
+
+    .user-activities {
+        flex: 1; /* Permite que ocupe espacio, sin crecer demasiado */
+        min-width: 380px; /* Ancho mínimo para actividades */
+        order: 1; /* Mis Actividades a la izquierda */
+    }
+
+    .user-info-card {
+        flex-shrink: 0; /* Evita que la tarjeta se encoja si el espacio es limitado */
+        min-width: 300px; /* Ancho mínimo para la tarjeta de info */
+        max-width: 450px; /* Ancho máximo para la tarjeta de info */
+        order: 2; /* Información del Perfil a la derecha */
+    }
+}
+
+/* Para pantallas pequeñas (móviles) */
 @media (max-width: 768px) {
-    header .container {
-        flex-direction: column;
-        text-align: center;
-    }
-
-    header nav ul {
-        margin-top: 15px;
-        flex-direction: column;
-        gap: 10px; /* Espacio entre ítems de menú en móvil */
-    }
-
-    header nav ul li {
-        margin: 0; /* Resetear margen horizontal */
-    }
-
-    .filters {
+    .header .container {
         flex-direction: column;
         align-items: center;
-    }
-
-    .filters input,
-    .filters select,
-    .filters button {
-        width: 90%; /* Ajusta el ancho de los filtros en pantallas pequeñas */
-        max-width: 300px;
-    }
-
-    /* Ajustes para el Hero en pantallas pequeñas */
-    .hero-section {
-        height: 400px; /* Menor altura en móviles */
-    }
-
-    .hero-title {
-        font-size: 2.8em; /* Ajusta el tamaño del título del hero */
-    }
-
-    .hero-description {
-        font-size: 1em; /* Ajusta el tamaño de la descripción */
-    }
-
-    .hero-btn {
-        padding: 12px 25px;
-        font-size: 1em;
-    }
-
-
-    /* Deshabilitar rotación diagonal en pantallas pequeñas */
-    .product-card {
-        width: 90%; /* Ajusta el ancho de las tarjetas en pantallas pequeñas */
-        margin: 15px auto; /* Centra las tarjetas y da más margen */
-        transform: none !important; /* Desactiva la rotación */
-        z-index: 1; /* Asegura el z-index normal */
-    }
-    .product-card:hover {
-        transform: scale(1.03) !important; /* Solo escalar en hover para móviles */
-    }
-    .product-card:nth-child(even) {
-        transform: none !important; /* Desactiva la rotación alternativa */
-    }
-    .product-card:nth-child(even):hover {
-        transform: scale(1.03) !important;
-    }
-
-
-    form {
-        padding: 20px;
         gap: 15px;
     }
 
-    .btn {
-        padding: 10px 20px;
-        font-size: 0.9em;
+    .header-logo {
+        height: 40px;
+    }
+
+    .logo-text {
+        font-size: 1.5em;
+    }
+
+    .header nav ul {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .hero-section {
+        padding: 60px 15px;
+        min-height: 400px;
+    }
+
+    .hero-title {
+        font-size: 2.5em;
+    }
+
+    .hero-subtitle {
+        font-size: 1.2em;
+    }
+
+    .hero-description {
+        font-size: 1em;
+    }
+
+    h2 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+    }
+
+    .filters, .user-management-filters {
+        flex-direction: column;
+        padding: 15px;
+        gap: 10px;
+    }
+
+    .filters input, .filters select, .filters button,
+    .user-management-filters input, .user-management-filters select, .user-management-filters button {
+        width: 100%; /* Ocupa todo el ancho disponible */
+        min-width: unset; /* Elimina el min-width */
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr; /* Una columna en móviles */
+        gap: 20px;
+        padding: 10px;
+    }
+
+    .product-actions {
+        flex-direction: column; /* Apila los botones de acción del producto */
+    }
+
+    .product-actions .btn {
+        width: 100%;
+    }
+
+    form {
+        padding: 20px;
+        margin: 20px auto;
+    }
+
+    /* Las secciones principales de Mi Cuenta se apilarán naturalmente */
+    .user-info-card,
+    .user-activities {
+        max-width: 95%; /* Un poco más de ancho en móviles */
+        margin: 0 auto; /* Centra los elementos */
+        padding: 20px;
+    }
+    
+    .profile-actions-buttons {
+        flex-direction: column; /* Apila los botones de perfil en móvil */
+    }
+    .profile-actions-buttons button {
+        width: 100%;
+    }
+
+    .user-table {
+        min-width: 100%; /* Asegura que la tabla ocupe todo el ancho disponible en móvil */
+    }
+    .user-table th, .user-table td {
+        padding: 8px 10px; /* Reduce el padding en tablas para pantallas pequeñas */
+        font-size: 0.8em;
+    }
+    .user-table .user-actions {
+        flex-direction: column; /* Apila los botones de acción en la tabla de admin */
+    }
+    .user-table .user-actions select,
+    .user-table .user-actions button {
+        width: 100%; /* Asegura que se estiren en móvil */
     }
 }
 
+/* Para pantallas muy pequeñas (smartphones pequeños) */
 @media (max-width: 480px) {
     .hero-title {
-        font-size: 2.2em; /* Título aún más pequeño en pantallas muy chicas */
+        font-size: 2em;
+    }
+    .hero-subtitle {
+        font-size: 1em;
+    }
+    .hero-description {
+        font-size: 0.9em;
+    }
+    .hero-btn {
+        padding: 12px 20px;
+        font-size: 0.95em;
+    }
+
+    h2 {
+        font-size: 1.6em;
+    }
+
+    /* Ajustes finos para tarjetas y actividades */
+    .user-info-card,
+    .user-activities,
+    .form-container {
+        padding: 15px; /* Reduce el padding en pantallas muy pequeñas */
+    }
+    .user-info-card h3, .user-activities h3 {
+        font-size: 1.4em;
+    }
+    .user-activities h4 {
+        font-size: 1.1em;
+    }
+    .activity-item {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+    .activity-item .timestamp {
+        font-size: 0.8em;
     }
 }

@@ -1,3 +1,4 @@
+// models/User.js
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); // Importa bcryptjs para hashing de contraseñas
 
@@ -28,10 +29,51 @@ const userSchema = mongoose.Schema({
         enum: ['user', 'admin'], // Define roles permitidos
         default: 'user' // Rol por defecto
     },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+    profileImage: {
+        type: String,
+        default: '/images/default_avatar.png' // Ruta por defecto para el avatar si no se sube uno
+    },
+    // Añadir campos para el historial de compras y actividad del carrito
+    // Aunque admin.js no los usa directamente para mostrar, myAccount.js sí los espera
+    purchases: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Order' // Referencia al modelo de 'Order' si tienes uno
+            // O puedes definir el esquema de compra directamente aquí si es simple:
+            // product: { type: String },
+            // quantity: { type: Number },
+            // date: { type: Date, default: Date.now }
+        }
+    ],
+    cartActivity: [
+        {
+            productId: {
+                type: String, // O mongoose.Schema.Types.ObjectId si tienes un modelo de Producto
+                required: true
+            },
+            name: { // Nombre del producto para visualización rápida
+                type: String,
+                required: true
+            },
+            price: {
+                type: Number,
+                required: true
+            },
+            quantity: {
+                type: Number,
+                required: true
+            },
+            action: { // Por ejemplo: 'added', 'removed', 'checkout'
+                type: String,
+                enum: ['added', 'removed', 'checkout', 'updated'],
+                required: true
+            },
+            date: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ]
 }, {
     timestamps: true // Añade automáticamente `createdAt` y `updatedAt`
 });

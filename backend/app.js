@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const productRoutes = require('./routes/productRoutes'); // Aquí es donde busca
 const authRoutes = require('./routes/authRoutes');     // Aquí es donde busca
+const userRoutes = require('./routes/userRoutes');     // <-- ¡NUEVA IMPORTACIÓN!
 const path = require('path'); 
 const fs = require('fs');
 
@@ -72,6 +73,7 @@ app.get('/', (req, res) => {
 // =====================================================================
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes); // <-- ¡NUEVA LÍNEA AÑADIDA!
 
 // =====================================================================
 // Manejo de Errores

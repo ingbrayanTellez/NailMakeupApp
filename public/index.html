@@ -13,7 +13,7 @@
             <div class="logo-container">
                 <a href="/" id="logo-link">
                     <img src="/img/mi_logo.1.png" alt="Mi Tienda NailMakeupApp Logo" class="header-logo">
-                    <span class="=logo-text">Mi Tienda NailMakeupApp</span>
+                    <span class="logo-text">Mi Tienda NailMakeupApp</span>
                 </a>
             </div>
             <nav>
@@ -35,6 +35,11 @@
                     <li id="nav-my-account-container" style="display: none;">
                         <a href="#my-account" id="nav-my-account">Mi Cuenta</a>
                     </li>
+                    
+                    <li id="nav-admin-dashboard-container" style="display: none;">
+                        <a href="#admin-dashboard" id="nav-admin-dashboard">Administración</a>
+                    </li>
+
                     <li id="nav-logout-container" style="display: none;">
                         <a href="#" id="nav-logout">Cerrar Sesión</a>
                     </li>
@@ -47,9 +52,10 @@
         <section id="home" class="hero-section current-section">
             <div class="hero-content">
                 <p class="hero-subtitle">Arte para Uñas</p>
-                <h2 class="hero-title">Crea magia con nuestos productos</h2>
+                <h2 class="hero-title">Crea magia con nuestros productos</h2>
                 <p class="hero-description">Explora nuestra exclusiva colección de esmaltes, bases y accesorios de uñas para transformar tu estilo.</p>
                 <button id="explore-products-btn" class="btn hero-btn">Explorar Productos</button>
+            </div>
         </section>
 
         <section id="products" class="container hidden-section">
@@ -73,7 +79,7 @@
             </div>
 
             <div id="product-list" class="product-grid">
-                </div>
+            </div>
             <p id="no-products-message" class="hidden"></p>
 
             <div class="pagination">
@@ -84,10 +90,11 @@
         </section>
 
         <section id="add-product" class="container hidden-section">
-            <h2 id="product-form-title">Agregar o edictar producto</h2>
+            <h2 id="product-form-title">Agregar o editar producto</h2>
             <div id="product-message-container" class="message-container"></div>
             <form id="product-form" enctype="multipart/form-data">
-                <input type="hidden" id="productId" name="productId"> <div class="form-group">
+                <input type="hidden" id="productId" name="productId"> 
+                <div class="form-group">
                     <label for="product-name">Nombre del Producto:</label>
                     <input type="text" id="product-name" name="name" required>
                     <span class="validation-error" id="product-name-error"></span>
@@ -178,7 +185,125 @@
 
         <section id="my-account" class="container hidden-section">
             <h2>Mi Cuenta</h2>
-            <p>Aquí irá la información del usuario y opciones de gestión de cuenta.</p>
+            <div id="my-account-message-container" class="message-container"></div>
+
+            <div class="my-account-content">
+                <div class="user-info-card"> 
+                    <h3>Información de Perfil</h3>
+                    <div class="profile-avatar">
+                        <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario">
+                        <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
+                        <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
+                        <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
+                        <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
+                        <span class="file-name-display" id="avatarFileName"></span>
+                        <div class="message-container" id="avatarMessage"></div>
+                    </div>
+                    <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
+                    <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
+                    <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
+                    
+                    <div class="profile-actions-buttons">
+                        <button id="edit-profile-btn" class="btn">Editar Perfil</button>
+                        <button id="change-password-btn" class="btn btn-secondary">Cambiar Contraseña</button>
+                    </div>
+                </div>
+
+                <div class="user-activities">
+                    <h3>Mi Actividad</h3>
+                    <div id="activity-message-container" class="message-container"></div>
+                    
+                    <h4>Movimientos de Compras</h4>
+                    <ul id="purchase-history-list" class="activity-list">
+                        <li>No hay compras registradas aún.</li>
+                    </ul>
+
+                    <h4>Actividad del Carrito</h4>
+                    <ul id="cart-activity-list" class="activity-list">
+                        <li>No hay actividad reciente en el carrito.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="edit-profile-form-container" class="form-container hidden-section"> 
+                <h3>Editar Mi Perfil</h3>
+                <form id="edit-profile-form">
+                    <div class="form-group">
+                        <label for="edit-username">Nombre de Usuario:</label>
+                        <input type="text" id="edit-username" required>
+                        <span class="validation-error" id="edit-username-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email">Email:</label>
+                        <input type="email" id="edit-email" required>
+                        <span class="validation-error" id="edit-email-error"></span>
+                    </div>
+                    <button type="submit" class="btn">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-edit-profile-btn">Cancelar</button>
+                </form>
+            </div>
+
+            <div id="change-password-form-container" class="form-container hidden-section"> 
+                <h3>Cambiar Contraseña</h3>
+                <form id="change-password-form">
+                    <div class="form-group">
+                        <label for="current-password">Contraseña Actual:</label>
+                        <input type="password" id="current-password" required>
+                        <span class="validation-error" id="current-password-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">Nueva Contraseña:</label>
+                        <input type="password" id="new-password" required>
+                        <span class="validation-error" id="new-password-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-new-password">Confirmar Nueva Contraseña:</label>
+                        <input type="password" id="confirm-new-password" required>
+                        <span class="validation-error" id="confirm-new-password-error"></span>
+                    </div>
+                    <button type="submit" class="btn">Actualizar Contraseña</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-change-password-btn">Cancelar</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="admin-dashboard" class="container hidden-section">
+            <h2>Panel de Administración de Usuarios</h2>
+            <div id="admin-message-container" class="message-container"></div>
+
+            <div class="user-management-filters">
+                <input type="text" id="userSearchInput" placeholder="Buscar por nombre o email...">
+                <select id="userRoleFilter">
+                    <option value="">Todos los Roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                    </select>
+                <button class="btn" id="applyUserFiltersBtn">Aplicar Filtros</button>
+                <button class="btn btn-secondary" id="clearUserFiltersBtn">Limpiar Filtros</button>
+            </div>
+
+            <div class="user-table-container">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID de Usuario</th>
+                            <th>Nombre de Usuario</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="5" id="no-users-message">Cargando usuarios...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="admin-user-pagination">
+                <button id="admin-prev-page-btn" class="btn" disabled>Anterior</button>
+                <span id="admin-page-info">Página 1 de 1</span>
+                <button id="admin-next-page-btn" class="btn" disabled>Siguiente</button>
+            </div>
         </section>
     </main>
 
@@ -189,7 +314,9 @@
     </footer>
 
     <script src="/js/auth.js"></script>
-    </script><script src="/js/main.js"></script><script src="/js/addProduct.js"></script> 
-    
+    <script src="/js/main.js"></script>
+    <script src="/js/addProduct.js"></script>
+    <script src="/js/myAccount.js"></script> 
+    <script src="/js/admin.js"></script> 
 </body>
 </html>

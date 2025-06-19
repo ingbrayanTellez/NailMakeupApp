@@ -1,13 +1,11 @@
-// backend/controllers/authController.js
 const User = require('../models/User'); // Asegúrate de que esta ruta sea correcta
 const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs'); // Solo si lo usas en el controlador, si no, puedes omitirlo
-// const { validationResult } = require('express-validator'); // Solo si usas express-validator aquí
+const bcrypt = require('bcryptjs'); // Necesario para el hashing y comparación de contraseñas
 
-// Helper function to generate a JWT token (asegúrate de que esta función esté aquí)
+// Helper function to generate a JWT token
 const generateToken = (id) => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '1h', // O el tiempo que tengas configurado
+        expiresIn: process.env.JWT_EXPIRES_IN || '1h', // Usa la variable de entorno o un default
     });
 };
 
@@ -15,7 +13,6 @@ const generateToken = (id) => {
 // @route   POST /api/auth/register
 // @access  Public
 exports.registerUser = async (req, res) => {
-    // ... (tu código existente para registerUser) ...
     const { username, email, password } = req.body;
 
     try {
@@ -34,6 +31,7 @@ exports.registerUser = async (req, res) => {
             password,
         });
 
+        // La contraseña se hashea en el pre-save hook de Mongoose si lo tienes configurado
         await newUser.save();
 
         res.status(201).json({
@@ -55,7 +53,6 @@ exports.registerUser = async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 exports.loginUser = async (req, res) => {
-    // ... (tu código existente para loginUser) ...
     const { email, password } = req.body;
 
     try {
@@ -65,6 +62,7 @@ exports.loginUser = async (req, res) => {
 
         const user = await User.findOne({ email });
 
+        // Asumiendo que `user.matchPassword` está definido en tu modelo de usuario
         if (user && (await user.matchPassword(password))) {
             return res.json({
                 _id: user._id,
@@ -84,22 +82,65 @@ exports.loginUser = async (req, res) => {
     }
 };
 
-// @desc    Obtener información del usuario autenticado
+// @desc    Get user data
 // @route   GET /api/auth/me
 // @access  Private
-exports.getMe = (req, res) => {
-    // El middleware 'protect' ya ha adjuntado la información del usuario
-    // al objeto req.user si el token es válido.
-    if (req.user) {
-        res.status(200).json({
-            _id: req.user._id,
-            username: req.user.username,
-            email: req.user.email,
-            role: req.user.role // Esto es clave para el frontend
-        });
-    } else {
-        // Esto no debería ocurrir si 'protect' funciona correctamente,
-        // pero es una salvaguarda.
-        res.status(404).json({ message: 'Usuario no encontrado.' });
+exports.getMe = async (req, res) => {
+    // req.user viene del middleware 'protect', contiene el ID del usuario
+    try {
+        const user = await User.findById(req.user._id).select('-password'); // Busca en DB y excluye la contraseña
+
+        if (user) {
+            res.status(200).json({
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                role: user.role,
+            });
+        } else {
+            // Esto debería ser un 400 si el ID del usuario en el token no se encuentra en DB
+            res.status(400).json({ message: 'Usuario no encontrado.' });
+        }
+    } catch (error) {
+        console.error('Error al obtener datos del usuario:', error);
+        res.status(500).json({ message: 'Error del servidor al obtener datos del usuario.' });
+    }
+};
+
+// @desc    Change user password
+// @route   PUT /api/auth/change-password
+// @access  Private
+exports.changePassword = async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        return res.status(400).json({ message: 'Por favor, ingresa tu contraseña actual y la nueva contraseña.' });
+    }
+
+    try {
+        // Necesitamos seleccionar explícitamente la contraseña para compararla
+        const user = await User.findById(req.user._id).select('+password');
+
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        // Verifica que la contraseña actual sea correcta
+        if (!(await bcrypt.compare(currentPassword, user.password))) {
+            return res.status(400).json({ message: 'La contraseña actual es incorrecta.' });
+        }
+
+        // Hashea la nueva contraseña
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+
+        // Guarda el usuario con la nueva contraseña hasheada
+        await user.save();
+
+        res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
+
+    } catch (error) {
+        console.error('Error al cambiar la contraseña:', error);
+        res.status(500).json({ message: 'Error del servidor al cambiar la contraseña.' });
     }
 };
