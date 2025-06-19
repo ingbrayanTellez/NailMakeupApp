@@ -1,9 +1,9 @@
 /* Estilos Generales y Reset */
 :root {
     /* Paleta de Colores para Nail Art */
-    --primary-color: #d1b61cde; /* Dorado - Para headers, botones primarios */
+    --primary-color: #d6987bde; /* Naranja Fuerte - Para headers, botones primarios */
     --secondary-color: #C0C0C0; /* Plata - Para acentos, hover de botones */
-    --accent-color: #de8f44; /* Cobre - Para fondos sutiles, bordes */
+    --accent-color: #93e08c; /* Cobre - Para fondos sutiles, bordes */
     --text-dark: #333; /* Texto oscuro principal */
     --text-light: #f4f4f4; /* Texto claro */
     --bg-light: #FFFFFF; /* Fondo principal claro */
