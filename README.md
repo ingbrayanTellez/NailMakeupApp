@@ -5,7 +5,6 @@
 **NailMakeupApp** es una aplicación web full-stack diseñada para una tienda en línea especializada en productos de Nail Art. Permite la gestión completa de productos (visualización, adición, edición y eliminación dinámica), así como la carga de imágenes, facilitando una experiencia de usuario interactiva y una administración de inventario eficiente. La aplicación cuenta con un sistema de autenticación de usuarios y roles, asegurando que las operaciones críticas de gestión de productos estén restringidas a administradores.
 
 =======
-
 ## Tecnologías Utilizadas
 * **Backend:**
     * **Node.js con Express.js:** Framework para el servidor web y la API RESTful.
@@ -36,7 +35,7 @@
 * **Autenticación de Usuarios:**
     * **Registro:** Permite a nuevos usuarios crear una cuenta.
     * **Login:** Permite a usuarios existentes iniciar sesión, obteniendo un token JWT.
-* **Navegación Dinámica y Control de Acceso (Frontend):**
+* **Navegación Dinámica y Control de Acceso (Frontend)::**
     * Los enlaces de la barra de navegación (`Login`, `Registro`, `Añadir Producto`, `Mi Cuenta`, `Cerrar Sesión`) se muestran u ocultan automáticamente dependiendo del estado de autenticación y el rol del usuario (logueado/no logueado, administrador/usuario regular).
     * La sección activa también cambia dinámicamente sin recargar la página.
     * **Sincronización de la UI en Tiempo Real:** La interfaz de usuario (navegación, botones de administración en productos, lista de productos) se actualiza instantáneamente después de acciones como login, registro, logout, añadir, editar o eliminar productos, sin requerir una recarga manual de la página.
@@ -58,8 +57,9 @@ Asegúrate de tener instalado lo siguiente:
 
 1.  **Clonar el Repositorio (si usas Git):**
     ```bash
-    git clone <https://github.com/ingbrayanTellez/NailMakeupApp.git>
+    git clone [https://github.com/ingbrayanTellez/NailMakeupApp.git](https://github.com/ingbrayanTellez/NailMakeupApp.git)
     cd tu_tienda_nail_art
+    ```
 
 2.  **Instalar Dependencias:**
     Navega a la raíz del proyecto e instala todas las dependencias (asegúrate de estar en el directorio donde está `package.json`):
@@ -129,6 +129,63 @@ Asegúrate de tener instalado lo siguiente:
     * Este error indica que el frontend (`auth.js` o `main.js`) está intentando obtener la información del usuario autenticado de la ruta `/api/auth/me`, pero el backend no tiene un controlador configurado para esta solicitud.
     * **Solución:** Necesitas definir la ruta `router.get('/me', protect, authController.getMe);` en `backend/routes/authRoutes.js` y crear la función `getMe` en `backend/controllers/authController.js` que decodifique el token y devuelva la información del usuario logueado.
 
+## ⚠️ Pendientes y Problemas Conocidos
+
+A continuación, se detallan los problemas identificados y que requieren atención futura para la estabilización y mejora del proyecto:
+
+### 1. Problema al Actualizar y Editar Productos (Error de Autorización/Interno)
+
+**Descripción:** Aunque la eliminación de productos funciona correctamente para usuarios con rol `admin`, la creación y edición de productos arroja un error que se manifiesta como "No autorizado" o un error interno 500 en la consola del servidor.
+
+**Análisis:**
+* El middleware de autorización en el backend (`authMiddleware.js`) está funcionando correctamente para el rol 'admin' (confirmado por la funcionalidad de eliminación).
+* El frontend (`public/js/addProduct.js`) ya envía la imagen del producto con el nombre de campo correcto (`imageUrl`) en el `FormData`, lo que debería prevenir errores de `MulterError: Unexpected field`.
+
+**Acciones Pendientes:**
+* **Revisar los logs del servidor (la consola donde ejecutas `node app.js`) con mucho detalle** cuando intentas añadir/editar un producto. Busca mensajes de error específicos (ej. de Multer, de validación de Mongoose, de tipo de dato) y su traza completa. Un `500 Internal Server Error` es un error genérico y el log detallado es crucial.
+* Asegurarse de que las funciones `createProduct` y `updateProduct` en `backend/controllers/productController.js` estén manejando correctamente los datos recibidos (incluyendo `req.file.filename` para la imagen) y que no haya validaciones de Mongoose fallando.
+
+### 2. Problema con la Carga y Visualización de Imágenes de Avatar
+
+**Descripción:** Al subir una imagen de usuario (avatar), el archivo se guarda correctamente en `public/uploads`, pero la URL que el frontend intenta cargar está mal formada (doble `/uploads//uploads/`) o la ruta almacenada en la base de datos es incorrecta, llevando a un error `404 Not Found`.
+
+**Logs Relevantes:**
+GET http://localhost:3000/uploads//uploads/684acb240efe551b00db26da-1750371254831.jpg?t=1750371254862 404 (Not Found)
+Error al eliminar el avatar antiguo: C:\Users\USUARIO\OneDrive - SENA\Escritorio\tu_tienda_nail_art\backend\public\uploads\684acb240efe551b00db26da-1750369071285.jpg [Error: ENOENT: no such file or directory, unlink 'C:\Users\USUARIO\OneDrive - SENA\Escritorio\tu_tienda_nail_art\backend\public\uploads\684acb240efe551b00db26da-1750369071285.jpg']
+
+**Acciones Pendientes:**
+* **Verificar en la base de datos (MongoDB Compass/Atlas):** Revisa el valor exacto del campo `profileImage` para un usuario que haya subido un avatar. **Debe contener SOLO el nombre del archivo** (ej., `684acb240efe551b00db26da-1750371254831.jpg`), sin ningún prefijo de ruta como `/uploads/` o `/backend/public/uploads/`.
+* **Corregir `backend/controllers/userController.js` (función `updateUserAvatar`):** Si la base de datos tiene el prefijo, la línea donde se asigna `user.profileImage` debe ser **estrictamente** `user.profileImage = req.file.filename;`.
+* **Revisar `public/js/myAccount.js` (si aplica):** Asegúrate de que la línea que construye la URL para mostrar el avatar sea `profileAvatarImg.src = data.profileImage ? `/uploads/${data.profileImage}?t=${new Date().getTime()}` : '/img/default-avatar.png';`. Si `data.profileImage` ya es el nombre de archivo puro, esta línea es correcta.
+* **Corregir lógica de eliminación de avatar antiguo:** La ruta para `fs.unlink` debe ser `path.join(__dirname, '..', '..', 'public', 'uploads', user.profileImage);` para que apunte a la ubicación correcta del archivo en `public/uploads` desde la raíz del proyecto. El error `\backend\public\uploads\` sugiere un problema en esta construcción de ruta.
+
+### 3. Problema de Sincronización de la Sección de Administración
+
+**Descripción:** La sección de "Administración" (o los elementos relacionados con el rol de admin) no desaparece automáticamente del menú o la UI al cerrar sesión, requiriendo una actualización manual de la página.
+
+**Acciones Pendientes:**
+* Modificar la función de "cerrar sesión" en tu frontend (`public/js/auth.js` o `public/js/main.js`) para que, después de limpiar el `localStorage` (eliminar `token` y `userRole`), también **llame explícitamente a la función `updateNavVisibility()`** (o la función que gestione la visibilidad de los elementos de navegación). Esto forzará a la UI a reflejar el cambio de estado de autenticación.
+
+### 4. Botones "Editar Perfil" y "Cambiar Contraseña" Inhabilitados
+
+**Descripción:** Los botones para editar el perfil y cambiar la contraseña dentro de la sección "Mi Cuenta" no están habilitados o no responden al clic.
+
+**Acciones Pendientes:**
+* **Verificar IDs HTML:** Confirma que los IDs de los botones en tu HTML (`index.html` o el HTML de la sección de perfil) coinciden exactamente con los IDs usados en `public/js/myAccount.js` al obtener las referencias (`document.getElementById`).
+* **Inspeccionar Elemento (DevTools):** Usa las Herramientas de Desarrollador del navegador (F12). Selecciona los botones en cuestión y revisa la pestaña "Styles" para ver si hay CSS que los esté deshabilitando visualmente (`pointer-events: none;` o `opacity` muy baja). En la pestaña "Event Listeners", verifica si el evento `click` está adjunto al botón.
+* **Depurar `public/js/myAccount.js`:** Añade `console.log('Botón Editar Perfil encontrado', editProfileBtn);` justo después de intentar obtener la referencia del botón para confirmar que el script lo encuentra.
+
+### 5. No se Actualizan Usuarios desde el Panel de Administrador (Error de Mongoose)
+
+**Descripción:** Cuando un administrador intenta actualizar la información de un usuario (ej. su rol o detalles de perfil) desde el panel de administración, la actualización falla y se observa un error en los logs del servidor relacionado con Mongoose (`document.js`, `schemaType.js`).
+
+**Acciones Pendientes:**
+* **Identificar la función de controlador:** Determina qué función en `backend/controllers/userController.js` es responsable de la actualización de usuarios (probablemente `updateUserRole` o `updateUserProfile` si la misma ruta se usa para admin).
+* **Depurar el controlador:** Añade `console.log` dentro de esa función para inspeccionar `req.body` (los datos recibidos del frontend) y los datos que se intentan guardar en el modelo `User` antes de llamar a `user.save()`.
+* **Revisar el esquema del modelo `User` (`backend/models/User.js`):** Este tipo de error (`schemaType.js`) casi siempre indica que se está intentando asignar un valor de un tipo de dato incorrecto (ej. cadena a número, o un valor no permitido en un `enum`) o que hay un validador en el esquema que está fallando. Verifica que los tipos de datos en tu `User` model coincidan con los datos que el frontend está enviando.
+
+---
+
 ## 💡 Posibles Mejoras Futuras y Documentación del Proyecto
 
 Con todas las funcionalidades principales ya implementadas, los próximos pasos se centrarán en la maduración del proyecto y la preparación para la entrega.
@@ -146,9 +203,7 @@ Con todas las funcionalidades principales ya implementadas, los próximos pasos 
     * **Despliegue de la aplicación a un entorno de producción:**
         * Considerar un servicio de almacenamiento de imágenes en la nube (ej. Cloudinary, AWS S3) en lugar de `public/uploads` para escalabilidad, fiabilidad y mejor rendimiento en entornos distribuidos.
     * **Optimización del Código:** Revisar el código para posibles mejoras de rendimiento y limpieza.
-
 ---
-
 **Además de las funcionalidades del software, la entrega completa del proyecto incluye la siguiente documentación:**
 
 1.  **Manual de Usuario:**
@@ -176,9 +231,7 @@ Con todas las funcionalidades principales ya implementadas, los próximos pasos 
             * **Procedimiento:** Cómo se ejecutarán las pruebas, cómo se reportarán los errores/feedback, herramientas a utilizar (hoja de cálculo, sistema de tickets).
             * **Criterios de Aceptación:** Qué condiciones deben cumplirse para que el cliente "acepte" el software (ej. 95% de casos de prueba pasados, errores críticos resueltos).
             * **Cronograma:** Duración de la fase UAT.
-            * **Plan de Comunicación:** Cómo se comunicarán los resultados y el progreso al cliente.
-
----
+            * **Plan de Comunicación:** Cómo 
 
 © 2025 Mi Tienda NailMakeupApp. Todos los derechos reservados @bgtellezg
 =======
