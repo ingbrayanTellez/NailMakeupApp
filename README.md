@@ -58,10 +58,8 @@ Asegúrate de tener instalado lo siguiente:
 
 1.  **Clonar el Repositorio (si usas Git):**
     ```bash
-    git clone <URL_DEL_REPOSITORIO>
+    git clone <https://github.com/ingbrayanTellez/NailMakeupApp.git>
     cd tu_tienda_nail_art
-    ```
-    (Reemplaza `<URL_DEL_REPOSITORIO>` con la URL de tu repositorio Git).
 
 2.  **Instalar Dependencias:**
     Navega a la raíz del proyecto e instala todas las dependencias (asegúrate de estar en el directorio donde está `package.json`):

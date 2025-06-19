@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const productRoutes = require('./routes/productRoutes'); // Aquí es donde busca
 const authRoutes = require('./routes/authRoutes');     // Aquí es donde busca
-const path = require('path');
+const path = require('path'); 
 const fs = require('fs');
 
 dotenv.config();
