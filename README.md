@@ -131,78 +131,67 @@ Asegúrate de tener instalado lo siguiente:
 
 ## ⚠️ Pendientes y Problemas Conocidos
 
-A continuación, se detallan los problemas identificados y que requieren atención futura para la estabilización y mejora del proyecto:
+### 1. Problema con la Carga y Visualización de Imágenes de Avatar
 
-### 1. Problema al Actualizar y Editar Productos (Error de Autorización/Interno)
-
-**Descripción:** Aunque la eliminación de productos funciona correctamente para usuarios con rol `admin`, la creación y edición de productos arroja un error que se manifiesta como "No autorizado" o un error interno 500 en la consola del servidor.
-
-**Análisis:**
-* El middleware de autorización en el backend (`authMiddleware.js`) está funcionando correctamente para el rol 'admin' (confirmado por la funcionalidad de eliminación).
-* El frontend (`public/js/addProduct.js`) ya envía la imagen del producto con el nombre de campo correcto (`imageUrl`) en el `FormData`, lo que debería prevenir errores de `MulterError: Unexpected field`.
-
-**Acciones Pendientes:**
-* **Revisar los logs del servidor (la consola donde ejecutas `node app.js`) con mucho detalle** cuando intentas añadir/editar un producto. Busca mensajes de error específicos (ej. de Multer, de validación de Mongoose, de tipo de dato) y su traza completa. Un `500 Internal Server Error` es un error genérico y el log detallado es crucial.
-* Asegurarse de que las funciones `createProduct` y `updateProduct` en `backend/controllers/productController.js` estén manejando correctamente los datos recibidos (incluyendo `req.file.filename` para la imagen) y que no haya validaciones de Mongoose fallando.
-
-### 2. Problema con la Carga y Visualización de Imágenes de Avatar
-
-**Descripción:** Al subir una imagen de usuario (avatar), el archivo se guarda correctamente en `public/uploads`, pero la URL que el frontend intenta cargar está mal formada (doble `/uploads//uploads/`) o la ruta almacenada en la base de datos es incorrecta, llevando a un error `404 Not Found`.
-
-**Logs Relevantes:**
-GET http://localhost:3000/uploads//uploads/684acb240efe551b00db26da-1750371254831.jpg?t=1750371254862 404 (Not Found)
-Error al eliminar el avatar antiguo: C:\Users\USUARIO\OneDrive - SENA\Escritorio\tu_tienda_nail_art\backend\public\uploads\684acb240efe551b00db26da-1750369071285.jpg [Error: ENOENT: no such file or directory, unlink 'C:\Users\USUARIO\OneDrive - SENA\Escritorio\tu_tienda_nail_art\backend\public\uploads\684acb240efe551b00db26da-1750369071285.jpg']
-
-**Acciones Pendientes:**
-* **Verificar en la base de datos (MongoDB Compass/Atlas):** Revisa el valor exacto del campo `profileImage` para un usuario que haya subido un avatar. **Debe contener SOLO el nombre del archivo** (ej., `684acb240efe551b00db26da-1750371254831.jpg`), sin ningún prefijo de ruta como `/uploads/` o `/backend/public/uploads/`.
-* **Corregir `backend/controllers/userController.js` (función `updateUserAvatar`):** Si la base de datos tiene el prefijo, la línea donde se asigna `user.profileImage` debe ser **estrictamente** `user.profileImage = req.file.filename;`.
-* **Revisar `public/js/myAccount.js` (si aplica):** Asegúrate de que la línea que construye la URL para mostrar el avatar sea `profileAvatarImg.src = data.profileImage ? `/uploads/${data.profileImage}?t=${new Date().getTime()}` : '/img/default-avatar.png';`. Si `data.profileImage` ya es el nombre de archivo puro, esta línea es correcta.
-* **Corregir lógica de eliminación de avatar antiguo:** La ruta para `fs.unlink` debe ser `path.join(__dirname, '..', '..', 'public', 'uploads', user.profileImage);` para que apunte a la ubicación correcta del archivo en `public/uploads` desde la raíz del proyecto. El error `\backend\public\uploads\` sugiere un problema en esta construcción de ruta.
-
-### 3. Problema de Sincronización de la Sección de Administración
-
-**Descripción:** La sección de "Administración" (o los elementos relacionados con el rol de admin) no desaparece automáticamente del menú o la UI al cerrar sesión, requiriendo una actualización manual de la página.
-
-**Acciones Pendientes:**
-* Modificar la función de "cerrar sesión" en tu frontend (`public/js/auth.js` o `public/js/main.js`) para que, después de limpiar el `localStorage` (eliminar `token` y `userRole`), también **llame explícitamente a la función `updateNavVisibility()`** (o la función que gestione la visibilidad de los elementos de navegación). Esto forzará a la UI a reflejar el cambio de estado de autenticación.
-
-### 4. Botones "Editar Perfil" y "Cambiar Contraseña" Inhabilitados
-
-**Descripción:** Los botones para editar el perfil y cambiar la contraseña dentro de la sección "Mi Cuenta" no están habilitados o no responden al clic.
-
-**Acciones Pendientes:**
-* **Verificar IDs HTML:** Confirma que los IDs de los botones en tu HTML (`index.html` o el HTML de la sección de perfil) coinciden exactamente con los IDs usados en `public/js/myAccount.js` al obtener las referencias (`document.getElementById`).
-* **Inspeccionar Elemento (DevTools):** Usa las Herramientas de Desarrollador del navegador (F12). Selecciona los botones en cuestión y revisa la pestaña "Styles" para ver si hay CSS que los esté deshabilitando visualmente (`pointer-events: none;` o `opacity` muy baja). En la pestaña "Event Listeners", verifica si el evento `click` está adjunto al botón.
-* **Depurar `public/js/myAccount.js`:** Añade `console.log('Botón Editar Perfil encontrado', editProfileBtn);` justo después de intentar obtener la referencia del botón para confirmar que el script lo encuentra.
-
-### 5. No se Actualizan Usuarios desde el Panel de Administrador (Error de Mongoose)
-
-**Descripción:** Cuando un administrador intenta actualizar la información de un usuario (ej. su rol o detalles de perfil) desde el panel de administración, la actualización falla y se observa un error en los logs del servidor relacionado con Mongoose (`document.js`, `schemaType.js`).
-
-**Acciones Pendientes:**
-* **Identificar la función de controlador:** Determina qué función en `backend/controllers/userController.js` es responsable de la actualización de usuarios (probablemente `updateUserRole` o `updateUserProfile` si la misma ruta se usa para admin).
-* **Depurar el controlador:** Añade `console.log` dentro de esa función para inspeccionar `req.body` (los datos recibidos del frontend) y los datos que se intentan guardar en el modelo `User` antes de llamar a `user.save()`.
-* **Revisar el esquema del modelo `User` (`backend/models/User.js`):** Este tipo de error (`schemaType.js`) casi siempre indica que se está intentando asignar un valor de un tipo de dato incorrecto (ej. cadena a número, o un valor no permitido en un `enum`) o que hay un validador en el esquema que está fallando. Verifica que los tipos de datos en tu `User` model coincidan con los datos que el frontend está enviando.
-
+**Descripción:** El avatar del usuario no se actualiza ni se muestra en el frontend, mostrando imágenes rotas o por defecto. El backend guarda y elimina correctamente las imágenes en el servidor, y la base de datos almacena las rutas exactas de las nuevas imágenes (ej., /img/avatars/nombre.png).
+Las correcciones en el JavaScript del frontend (myAccount.js) para construir la URL de la imagen parecen correctas, añadiendo un timestamp para evitar la caché. Sin embargo, persisten errores 404 Not Found en el navegador, a veces mostrando URLs con duplicidad como //img/avatars//img/avatars/.
+La causa más probable es una configuración incorrecta en el servidor Express para servir archivos estáticos, o un conflicto con otras rutas. La depuración se dificulta porque la pestaña "Network" del navegador no muestra las solicitudes esperadas, lo que impide verificar la respuesta del servidor en tiempo real. La solución pendiente es revisar a fondo la configuración de express.static en server.js y usar console.log para trazar las URLs generadas en el frontend.
 ---
 
-## 💡 Posibles Mejoras Futuras y Documentación del Proyecto
+## Posibles Mejoras Futuras
 
-Con todas las funcionalidades principales ya implementadas, los próximos pasos se centrarán en la maduración del proyecto y la preparación para la entrega.
+Aquí se detallan las áreas donde el proyecto puede expandirse para mejorar la funcionalidad y la experiencia del usuario.
 
-* **Funcionalidades de Usuario Adicionales:**
-    * **Completar la Sección "Mi Cuenta":** Actualmente, la sección está presente en el HTML. El siguiente paso es implementar la lógica para **mostrar la información del usuario logueado** (nombre de usuario, email, rol) dentro de esta sección. Opcionalmente, se podría añadir la funcionalidad para que el usuario pueda **actualizar su perfil o cambiar su contraseña**.
-    * **Implementación de un Carrito de Compras y Proceso de Pedidos Completo:** Permitir a los usuarios añadir productos a un carrito, gestionarlo y proceder a un flujo de compra (este es un módulo grande y complejo).
-    * **Integración de un Chatbot de soporte al cliente:** Proporcionar asistencia automatizada a los usuarios para preguntas frecuentes o ayuda con el proceso de compra.
+### 1. Funcionalidades para el Usuario (Frontend)
 
-* **Mejoras en la Interfaz de Usuario (UI/UX) y Rendimiento:**
-    * **Mejoras continuas en el diseño y la responsividad** de la interfaz de usuario para una experiencia óptima en todos los dispositivos.
-    * **Indicadores de Carga:** Implementar elementos visuales (spinners, esqueletos) que indiquen al usuario que una operación está en curso (ej. al cargar productos, al enviar un formulario).
+* **Página de Detalles del Producto:** Al hacer clic en un producto, redirigir a una página dedicada con más imágenes, descripciones detalladas, opiniones de usuarios, productos relacionados y un botón para añadir al carrito.
+* **Carrito de Compras Persistente:** Implementar un carrito que guarde los ítems incluso después de cerrar el navegador (usando `localStorage` o base de datos para usuarios logueados).
+* **Proceso de Checkout Avanzado:**
+    * Formulario de dirección de envío y facturación.
+    * Integración con pasarelas de pago (Stripe, PayPal).
+    * Confirmación de pedido y resumen.
+* **Gestión de Pedidos del Usuario:** Una sección en "Mi Cuenta" donde el usuario pueda ver el estado de sus pedidos, historial de compras detallado, facturas, etc.
+* **Sistema de Valoraciones y Reseñas:** Permitir a los usuarios calificar y escribir reseñas sobre los productos.
+* **Favoritos/Lista de Deseos:** Opción para guardar productos en una lista de deseos para futuras compras.
+* **Notificaciones:** Alertas para el usuario sobre el estado de su pedido, nuevas ofertas, etc.
+* **Página de Contacto/Soporte:** Un formulario o información de contacto para que los usuarios puedan comunicarse con la tienda.
 
-* **Preparación para Despliegue y Mantenimiento:**
-    * **Despliegue de la aplicación a un entorno de producción:**
-        * Considerar un servicio de almacenamiento de imágenes en la nube (ej. Cloudinary, AWS S3) en lugar de `public/uploads` para escalabilidad, fiabilidad y mejor rendimiento en entornos distribuidos.
-    * **Optimización del Código:** Revisar el código para posibles mejoras de rendimiento y limpieza.
+### 2. Funcionalidades para el Administrador (Backend y Frontend)
+
+* **Gestión de Pedidos:**
+    * Panel para ver todos los pedidos, filtrar por estado (pendiente, enviado, entregado, cancelado).
+    * Opción para actualizar el estado de un pedido.
+    * Detalles de cada pedido (productos, usuario, dirección, total).
+* **Gestión de Categorías:** Interfaz para crear, editar y eliminar categorías de productos dinámicamente.
+* **Gestión de Usuarios Avanzada:** Además de lo actual, poder:
+    * Bloquear/desbloquear usuarios.
+    * Ver historial de actividad detallado de un usuario específico.
+* **Estadísticas y Reportes:** Dashboard con métricas clave (ventas totales, productos más vendidos, usuarios activos).
+* **Gestión de Ofertas/Descuentos:** Crear y aplicar códigos de descuento o promociones.
+* **Copia de Seguridad de la Base de Datos:** Implementar un sistema de copia de seguridad automático o manual.
+
+### 3. Mejoras Técnicas y de Rendimiento
+
+* **Paginación Avanzada:** Implementar paginación en el backend y frontend para productos y usuarios, mejorando el rendimiento con grandes volúmenes de datos.
+* **Optimización de Imágenes:** Comprimir imágenes al subirlas y servirlas en tamaños adecuados para diferentes dispositivos.
+* **Caché del Servidor:** Implementar caché en el servidor para respuestas de API frecuentes y archivos estáticos.
+* **Pruebas Automatizadas:** Implementar pruebas unitarias y de integración (Jest, Supertest) para el backend y frontend.
+* **Controles de Entrada (Validación):** Asegurar una validación robusta tanto en el frontend como en el backend para todos los datos de entrada del usuario.
+* **Manejo de Errores Mejorado:** Implementar un sistema más sofisticado de logueo y reporte de errores.
+* **Internacionalización (i18n):** Soporte para múltiples idiomas si se planea expandir el mercado.
+* **Seguridad:**
+    * Implementar HSTS.
+    * Mejorar la protección CSRF y XSS.
+    * Rate limiting para prevenir ataques de fuerza bruta.
+* **Despliegue Continuo (CI/CD):** Configurar un pipeline de CI/CD (GitHub Actions, GitLab CI) para automatizar el despliegue de la aplicación.
+
+### 4. Experiencia de Usuario (UX) y Diseño
+
+* **Diseño Responsivo Completo:** Asegurar que la aplicación se vea y funcione perfectamente en cualquier dispositivo (móvil, tablet, escritorio).
+* **Mejoras Visuales:** Refinar la UI/UX con animaciones sutiles, transiciones y una paleta de colores coherente.
+* **Cargas Asíncronas:** Usar esqueletos de carga o spinners para indicar que el contenido se está cargando, mejorando la percepción de rendimiento.
+* **Mensajes al Usuario:** Mensajes más claros y contextuales para el usuario (confirmaciones, errores, etc.).
+
 ---
 **Además de las funcionalidades del software, la entrega completa del proyecto incluye la siguiente documentación:**
 
