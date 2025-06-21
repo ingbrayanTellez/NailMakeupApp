@@ -69,13 +69,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         return localStorage.getItem('token');
     };
 
-    /**
-     * Verifica el rol del usuario desde el localStorage.
-     * @returns {string|null} El rol del usuario ('admin', 'user', etc.) o null si no está logueado.
-     */
-    const getUserRole = () => {
-        return localStorage.getItem('userRole');
-    };
+// public/js/addProduct.js (y otros archivos relevantes)
+
+/**
+ * Verifica el rol del usuario desde el localStorage.
+ * @returns {string|null} El rol del usuario ('admin', 'user', etc.) o null si no está logueado o el rol no se puede determinar.
+ */
+const getUserRole = () => {
+    // Primero, intenta obtener el string JSON del usuario del localStorage
+    const userString = localStorage.getItem('user'); // <-- Obtiene el string '{"_id":..., "role":"admin"}'
+    
+    if (userString) {
+        try {
+            const userObject = JSON.parse(userString); // <-- Parsea el string a un objeto JavaScript
+            return userObject.role; // <-- Retorna la propiedad 'role' del objeto
+        } catch (e) {
+            console.error("Error al parsear el objeto 'user' del localStorage:", e);
+            return null; // En caso de que el JSON esté mal formado
+        }
+    }
+    return null;
+};
 
     // --- Lógica del formulario Añadir/Editar Producto ---
 

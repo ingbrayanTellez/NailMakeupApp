@@ -190,18 +190,21 @@
             <div class="my-account-content">
                 <div class="user-info-card"> 
                     <h3>Información de Perfil</h3>
-                    <div class="profile-avatar">
-                        <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario">
-                        <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
-                        <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
-                        <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
-                        <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
-                        <span class="file-name-display" id="avatarFileName"></span>
-                        <div class="message-container" id="avatarMessage"></div>
+                    <div class="user-details-wrapper"> <div class="profile-info-text"> 
+                            <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
+                            <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
+                            <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
+                        </div>
+                        <div class="profile-avatar">
+                            <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario">
+                            <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
+                            <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
+                            <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
+                            <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
+                            <span class="file-name-display" id="avatarFileName"></span>
+                            <div class="message-container" id="avatarMessage"></div>
+                        </div>
                     </div>
-                    <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
-                    <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
-                    <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
                     
                     <div class="profile-actions-buttons">
                         <button id="edit-profile-btn" class="btn">Editar Perfil</button>

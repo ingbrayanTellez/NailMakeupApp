@@ -1,9 +1,8 @@
-// userController.js
 const asyncHandler = require('express-async-handler');
-const User = require('../models/User');
-const bcrypt = require('bcryptjs'); // Necesario para hashear contraseñas si se actualiza desde aquí
-const path = require('path'); // Para trabajar con rutas de archivos
-const fs = require('fs'); // Para manejar archivos (ej. eliminar avatares antiguos)
+const User = require('../models/User'); // Asegúrate de que la ruta al modelo es correcta
+const bcrypt = require('bcryptjs'); 
+const path = require('path');
+const fs = require('fs');
 
 // @desc    Get all users (for admin panel)
 // @route   GET /api/users
@@ -97,8 +96,6 @@ exports.updateUserProfile = asyncHandler(async (req, res) => {
     }
 
     // Campos que se pueden actualizar.
-    // Importante: profileImage se manejará en una ruta separada con Multer.
-    // Role se maneja en una ruta separada.
     const { username, email } = req.body;
 
     // Actualizar campos si se proporcionan
@@ -116,7 +113,7 @@ exports.updateUserProfile = asyncHandler(async (req, res) => {
         username: updatedUser.username,
         email: updatedUser.email,
         role: updatedUser.role,
-        profileImage: updatedUser.profileImage || '/images/default_avatar.png', // Asegurarse de incluir la imagen
+        profileImage: updatedUser.profileImage || '/img/default-avatar.png', // Asegúrate de que el frontend reciba la ruta completa
         message: 'Perfil actualizado con éxito'
     });
 });
@@ -140,18 +137,15 @@ exports.updateUserRole = asyncHandler(async (req, res) => {
     }
 
     // Un administrador no debe poder cambiar su propio rol o el rol de otro administrador
-    // Aquí puedes decidir si quieres permitir que un admin cambie el rol de otro admin.
-    // Por seguridad, es mejor que un admin no pueda degradar a otro admin o a sí mismo.
     if (req.user._id.toString() === userToUpdate._id.toString()) {
         res.status(400);
         throw new Error('No puedes cambiar tu propio rol.');
     }
     // Si quieres evitar que un admin cambie el rol de otro admin:
     if (userToUpdate.role === 'admin' && req.user._id.toString() !== userToUpdate._id.toString()) {
-         res.status(400);
-         throw new Error('No puedes cambiar el rol de otro administrador.');
+        res.status(400);
+        throw new Error('No puedes cambiar el rol de otro administrador.');
     }
-
 
     const { role } = req.body;
 
@@ -197,17 +191,35 @@ exports.deleteUser = asyncHandler(async (req, res) => {
         throw new Error('No puedes eliminar tu propia cuenta de administrador.');
     }
 
-    // Opcional: Eliminar el archivo de imagen de perfil si no es la por defecto
-    if (userToDelete.profileImage && userToDelete.profileImage !== '/images/default_avatar.png') {
-        // Asegúrate de que esta ruta sea correcta para tu entorno de servidor
-        const imagePath = path.join(__dirname, '../public', userToDelete.profileImage);
-        fs.unlink(imagePath, (err) => {
-            if (err) {
-                console.error('Error al eliminar el archivo de imagen de perfil:', imagePath, err);
-                // No lanzamos un error que impida la eliminación del usuario si la imagen falla
+    // === INICIO DE CORRECCIÓN PARA LA ELIMINACIÓN DEL AVATAR ANTIGUO ===
+    // Asumimos que '/img/default-avatar.png' es la ruta que se guarda en la DB
+    // para el avatar por defecto. Ajusta si tu default es solo 'default-avatar.png'
+    if (userToDelete.profileImage && userToDelete.profileImage !== '/img/default-avatar.png') {
+        let filenameToUnlink = userToDelete.profileImage;
+
+        // Si profileImage ya tiene la ruta completa (ej. '/img/avatars/filename.ext'),
+        // extraemos solo el nombre del archivo. Esto maneja la consistencia con las rutas antiguas.
+        if (filenameToUnlink.startsWith('/img/avatars/')) {
+            filenameToUnlink = path.basename(filenameToUnlink);
+        }
+
+        // Construye la ruta absoluta al archivo antiguo en `public/img/avatars/`
+        // path.join(__dirname, '..', '..') te lleva a la raíz del proyecto.
+        // Desde ahí, 'public', 'img', 'avatars' y luego el nombre del archivo.
+        const oldImagePath = path.join(__dirname, '..', '..', 'public', 'img', 'avatars', filenameToUnlink);
+        
+        try {
+            await fs.promises.unlink(oldImagePath);
+            console.log(`Avatar antiguo eliminado: ${oldImagePath}`);
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                console.warn(`Advertencia: Archivo de perfil no encontrado al intentar eliminar: ${oldImagePath}`);
+            } else {
+                console.error('Error al eliminar el archivo de imagen de perfil:', oldImagePath, error);
             }
-        });
+        }
     }
+    // === FIN DE CORRECCIÓN ===
 
     await userToDelete.deleteOne(); // Mongoose 6+ usa deleteOne(), en versiones anteriores era remove()
 
@@ -238,31 +250,47 @@ exports.updateUserAvatar = asyncHandler(async (req, res) => {
         throw new Error('No se ha proporcionado ningún archivo para el avatar.');
     }
 
-    // Si ya existe una imagen de perfil y no es la predeterminada, eliminarla
-    if (user.profileImage && user.profileImage !== '/images/default_avatar.png') {
-        // Construye la ruta absoluta al archivo antiguo
-        // Asegúrate de que esta ruta coincida con donde Multer guarda los archivos
-        const oldImagePath = path.join(__dirname, '../public', user.profileImage);
-        fs.unlink(oldImagePath, (err) => {
-            if (err) {
-                console.error('Error al eliminar el avatar antiguo:', oldImagePath, err);
-                // Puedes decidir si este error debería detener la actualización
-                // o simplemente loguearlo y continuar.
-            }
-        });
-    }
+    // === INICIO DE CORRECCIÓN PARA LA ELIMINACIÓN DEL AVATAR ANTIGUO ===
+    // Si ya existe una imagen de perfil y NO es la predeterminada, eliminarla
+    // Asumimos que '/img/default-avatar.png' es la ruta que se guarda en la DB
+    // para el avatar por defecto. Ajusta si tu default es solo 'default-avatar.png'
+    if (user.profileImage && user.profileImage !== '/img/default-avatar.png') { 
+        let filenameToUnlink = user.profileImage;
 
-    // Guardar la nueva ruta de la imagen en la base de datos
-    // La ruta guardada debe ser relativa al cliente (lo que el navegador pedirá)
-    // Multer típicamente proporciona req.file.path o req.file.filename
-    // Asumimos que Multer guarda en 'public/uploads' y lo sirves desde '/uploads'
-    user.profileImage = `/uploads/${req.file.filename}`; // Asume que Multer usa 'filename'
+        // Si profileImage ya tiene la ruta completa (ej. '/img/avatars/filename.ext'),
+        // extraemos solo el nombre del archivo. Esto maneja la consistencia con las rutas antiguas.
+        if (filenameToUnlink.startsWith('/img/avatars/')) {
+            filenameToUnlink = path.basename(filenameToUnlink);
+        }
+
+        // Construye la ruta absoluta al archivo antiguo en `public/img/avatars/`
+        // path.join(__dirname, '..', '..') te lleva a la raíz del proyecto.
+        // Desde ahí, 'public', 'img', 'avatars' y luego el nombre del archivo.
+        const oldImagePath = path.join(__dirname, '..', '..', 'public', 'img', 'avatars', filenameToUnlink);
+        
+        // Usar fs.promises.unlink para un manejo asíncrono y evitar errores no capturados
+        try {
+            await fs.promises.unlink(oldImagePath);
+            console.log(`Avatar antiguo eliminado: ${oldImagePath}`);
+        } catch (error) {
+            if (error.code === 'ENOENT') {
+                console.warn(`Advertencia: Avatar antiguo no encontrado al intentar eliminar: ${oldImagePath}`);
+            } else {
+                console.error('Error al eliminar el avatar antiguo:', oldImagePath, error);
+            }
+        }
+    }
+    // === FIN DE CORRECCIÓN ===
+
+    // Guardar la RUTA RELATIVA COMPLETA del avatar en la base de datos.
+    // Esto es lo que el frontend usará para el 'src' de la imagen.
+    user.profileImage = `/img/avatars/${req.file.filename}`; // <--- ¡LA CORRECCIÓN CLAVE!
 
     await user.save();
 
     res.status(200).json({
         message: 'Avatar actualizado con éxito',
-        profileImage: user.profileImage // Devolver la nueva URL de la imagen
+        profileImage: user.profileImage // Devolver la ruta relativa completa al frontend
     });
 });
 

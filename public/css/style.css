@@ -1,27 +1,22 @@
-/* =====================================================================
-   VARIABLES CSS (COLORES, FUENTES, SOMBRAS)
-   ===================================================================== */
 :root {
-    --primary-color: #ff69b4; /* Rosa vibrante */
-    --secondary-color: #8a2be2; /* Azul violeta */
-    --accent-color: #00bcd4; /* Cian para acentos */
+    --primary-color: #bf2268;
+    --secondary-color: #8a2be2;
+    --accent-color: #00bcd4;
     --text-dark: #333;
-    --text-light: #fff;
-    --bg-light: #ffffff;
-    --bg-dark: #f0f2f5;
-    --bg-subtle: #f8f8f8; /* Gris muy claro para fondos sutiles */
+    --text-light: #ffc107;
+    --bg-light: #f8f8f8;
+    --bg-dark: #a2685fa3;
+    --bg-subtle: #f8f8f8;
     --border-color: #ddd;
-    --success-color: #28a745;
+    --success-color: #d1b61cde;
     --error-color: #dc3545;
     --warning-color: #ffc107;
     --font-family: 'Arial', sans-serif;
     --box-shadow-light: 0 4px 8px rgba(0, 0, 0, 0.1);
     --box-shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.15);
+    --card-hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
-/* =====================================================================
-   RESETS BÁSICOS Y ESTILOS GLOBALES
-   ===================================================================== */
 * {
     margin: 0;
     padding: 0;
@@ -32,7 +27,7 @@ body {
     font-family: var(--font-family);
     line-height: 1.6;
     color: var(--text-dark);
-    background-color: var(--bg-dark); /* Fondo general de la página */
+    background-color: var(--bg-dark);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -71,9 +66,6 @@ h2 {
     margin-bottom: 40px;
 }
 
-/* =====================================================================
-   HEADER
-   ===================================================================== */
 .header {
     background-color: var(--bg-light);
     color: var(--text-dark);
@@ -86,7 +78,7 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Permite que el contenido se envuelva en pantallas pequeñas */
+    flex-wrap: wrap;
 }
 
 .logo-container {
@@ -95,7 +87,7 @@ h2 {
 }
 
 .header-logo {
-    height: 50px; /* Tamaño del logo */
+    height: 50px;
     margin-right: 10px;
 }
 
@@ -103,12 +95,12 @@ h2 {
     font-size: 1.8em;
     font-weight: bold;
     color: var(--primary-color);
-    white-space: nowrap; /* Evita que el texto del logo se rompa */
+    white-space: nowrap;
 }
 
 .header nav ul {
     display: flex;
-    gap: 25px; /* Espacio entre los elementos del menú */
+    gap: 25px;
 }
 
 .header nav ul li a {
@@ -135,18 +127,15 @@ h2 {
     width: 100%;
 }
 
-/* =====================================================================
-   HERO SECTION (HOME)
-   ===================================================================== */
 .hero-section {
     background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/img/hero-bg.jpg') no-repeat center center/cover;
     color: var(--text-light);
-    text-align: center; /* ESTO ES LO QUE CENTRA EL TEXTO */
+    text-align: center;
     padding: 100px 20px;
     min-height: 500px;
-    display: flex; /* Asegura que el contenido pueda ser centrado verticalmente */
-    align-items: center; /* Centra verticalmente el contenido dentro de la sección */
-    justify-content: center; /* Centra horizontalmente el contenido dentro de la sección si es un flex container */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 8px;
     margin: 20px auto;
     max-width: 1200px;
@@ -154,22 +143,12 @@ h2 {
 
 .hero-content {
     max-width: 800px;
-    /* No necesitas text-align: center aquí si ya está en .hero-section */
 }
 
 .hero-subtitle {
     font-size: 1.5em;
     color: var(--accent-color);
     margin-bottom: 10px;
-    /* Asegúrate de que no haya un text-align: left en otro lugar que lo sobrescriba */
-}
-
-.hero-title {
-    font-size: 3.5em;
-    margin-bottom: 20px;
-    color: var(--text-light);
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    /* Asegúrate de que no haya un text-align: left en otro lugar que lo sobrescriba */
 }
 
 .hero-title {
@@ -190,15 +169,12 @@ h2 {
     font-size: 1.1em;
 }
 
-/* =====================================================================
-   SECCIONES GENERALES Y VISIBILIDAD
-   ===================================================================== */
 main {
     padding: 20px 0;
 }
 
 section {
-    display: none; /* Por defecto, todas las secciones están ocultas */
+    display: none;
     padding: 40px 0;
     margin-bottom: 20px;
     background-color: var(--bg-light);
@@ -207,16 +183,13 @@ section {
 }
 
 .current-section {
-    display: block; /* Muestra la sección activa */
+    display: block;
 }
 
 .hidden-section {
-    display: none; /* Para JavaScript que use esta clase para ocultar */
+    display: none;
 }
 
-/* =====================================================================
-   BOTONES
-   ===================================================================== */
 .btn {
     display: inline-block;
     background-color: var(--primary-color);
@@ -236,7 +209,7 @@ section {
 }
 
 .btn-secondary {
-    background-color: #6c757d; /* Gris oscuro */
+    background-color: #6c757d;
 }
 
 .btn-secondary:hover {
@@ -264,9 +237,6 @@ section {
     font-size: 0.9em;
 }
 
-/* =====================================================================
-   FORMULARIOS
-   ===================================================================== */
 form {
     background-color: var(--bg-light);
     padding: 30px;
@@ -322,7 +292,7 @@ form {
     border-radius: 5px;
     font-weight: 500;
     text-align: center;
-    opacity: 0; /* Oculto por defecto */
+    opacity: 0;
     transform: translateY(-10px);
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
@@ -357,9 +327,6 @@ form {
     display: block;
 }
 
-/* =====================================================================
-   SECCIÓN PRODUCTOS
-   ===================================================================== */
 .filters {
     display: flex;
     flex-wrap: wrap;
@@ -380,25 +347,25 @@ form {
     border: 1px solid var(--border-color);
     border-radius: 5px;
     font-size: 1em;
-    flex: 1; /* Permite que los elementos se estiren */
-    min-width: 150px; /* Ancho mínimo para que no se compriman demasiado */
+    flex: 1;
+    min-width: 150px;
 }
 
 .filters button {
-    flex-shrink: 0; /* Evita que los botones se encojan */
+    flex-shrink: 0;
     min-width: 120px;
 }
 
 .product-grid {
-    display: flex; /* Usamos flexbox para el contenedor */
-    flex-wrap: wrap; /* Permite que los elementos pasen a la siguiente línea */
-    justify-content: center; /* Centra los elementos horizontalmente */
-    gap: 0px; /* Reducimos o eliminamos el gap para permitir el solapamiento */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0px;
     padding: 20px;
-    position: relative; /* Es importante para que z-index funcione en los hijos */
-    overflow: hidden; /* Oculta cualquier parte de los productos que sobresalga demasiado del contenedor */
-    max-width: 1200px; /* Ancho máximo para que los productos no se estiren demasiado en pantallas grandes */
-    margin: 20px auto; /* Centra la cuadrícula en la página */
+    position: relative;
+    overflow: hidden;
+    max-width: 1200px;
+    margin: 20px auto;
 }
 
 .product-card {
@@ -408,47 +375,34 @@ form {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     padding: 15px;
     text-align: center;
-    width: 280px; /* Ancho fijo para cada tarjeta, ajusta según necesidad */
-    margin: 10px; /* Un pequeño margen alrededor de cada tarjeta para evitar solapamiento excesivo */
+    width: 280px;
+    margin: 10px;
     transition: transform 0.3s ease, box-shadow 0.3s ease, z-index 0.1s ease;
     cursor: pointer;
-
-    /* --- ESTILOS CLAVE PARA LA DIAGONAL --- */
-    position: relative; /* Necesario para z-index y transformaciones */
-    transform-origin: center center; /* El punto alrededor del cual rota */
-    
-    /* Por defecto, un poco rotado y desplazado.
-       Ajusta el 'rotate' y 'translate' para el grado de diagonalidad y solapamiento. */
-    transform: rotate(2deg) translateX(10px) translateY(10px); 
-    
-    z-index: 1; /* Valor por defecto bajo */
+    position: relative;
+    transform-origin: center center;
+    transform: rotate(2deg) translateX(10px) translateY(10px);
+    z-index: 1;
 }
 
-/* Efecto al pasar el ratón (hover) */
 .product-card:hover {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    /* Al hacer hover, lo rotamos un poco más y lo movemos hacia el frente (z-index) */
-    transform: rotate(0deg) scale(1.05) translateX(0) translateY(0); /* Lo endereza un poco y lo agranda */
-    z-index: 10; /* Lo trae al frente al hacer hover */
+    transform: rotate(0deg) scale(1.05) translateX(0) translateY(0);
+    z-index: 10;
 }
 
-/* Opcional: Para el primer elemento de cada fila o un patrón más complejo
-   Puedes usar selectores como :nth-child(even), :nth-child(odd)
-   para aplicar rotaciones alternas y crear un patrón más interesante. */
-.product-card:nth-child(even) { /* Cada segunda tarjeta */
-    transform: rotate(-2deg) translateX(-10px) translateY(10px); /* Rotación inversa y desplazamiento */
+.product-card:nth-child(even) {
+    transform: rotate(-2deg) translateX(-10px) translateY(10px);
 }
 
 .product-card:nth-child(even):hover {
     transform: rotate(0deg) scale(1.05) translateX(0) translateY(0);
 }
 
-
-/* Asegúrate de que las imágenes dentro de la tarjeta se ajusten */
 .product-card img {
     max-width: 100%;
-    height: 180px; /* Altura fija para las imágenes */
-    object-fit: cover; /* Recorta la imagen si es necesario para cubrir el espacio */
+    height: 180px;
+    object-fit: cover;
     border-radius: 4px;
     margin-bottom: 10px;
 }
@@ -467,11 +421,10 @@ form {
 .product-card .product-price {
     font-size: 1.3em;
     font-weight: bold;
-    color: #007bff; /* Color para el precio */
+    color: #007bff;
     margin-top: 10px;
 }
 
-/* Estilos para los botones de acción (editar/eliminar) */
 .product-actions {
     margin-top: 15px;
 }
@@ -488,27 +441,25 @@ form {
 }
 
 .product-actions button.edit-btn {
-    background-color: #28a745; /* Verde para editar */
+    background-color: #28a745;
 }
 
 .product-actions button.delete-btn {
-    background-color: #dc3545; /* Rojo para eliminar */
+    background-color: #dc3545;
 }
 
 .product-actions button:hover {
     opacity: 0.9;
 }
 
-/* Mensaje cuando no hay productos */
 #no-products-message {
     text-align: center;
     font-size: 1.2em;
     color: #777;
     margin-top: 50px;
-    width: 100%; /* Asegura que ocupe todo el ancho del contenedor flex */
+    width: 100%;
 }
 
-/* Paginación */
 .pagination {
     display: flex;
     justify-content: center;
@@ -542,119 +493,160 @@ form {
     color: var(--text-dark);
 }
 
-/* =====================================================================
-   SECCIÓN MI CUENTA (REESTRUCTURADA)
-   ===================================================================== */
-
 #my-account h2 {
     width: 100%;
     text-align: center;
-    margin-bottom: 30px; /* Más espacio debajo del título principal */
+    margin-bottom: 40px;
+    font-size: 2.8em;
+    color: var(--primary-color);
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
 }
 
-/* Contenedor Flexbox para la información del usuario y las actividades */
 .my-account-content {
     display: flex;
-    flex-wrap: wrap; /* Permite que los elementos se envuelvan */
-    justify-content: center; /* Centra los elementos horizontalmente por defecto */
-    gap: 30px; /* Espacio entre la tarjeta de info y las actividades */
-    width: 100%; /* Ocupa todo el ancho disponible del .container */
-    max-width: 1200px; /* Mismo que tu .container general */
-    margin: 0 auto 30px auto; /* Centra y añade margen inferior */
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto 50px auto;
 }
 
-/* Estilos para la tarjeta de Información del Usuario (derecha en escritorio) */
 .user-info-card {
-    background-color: var(--bg-light);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
-    padding: 30px;
-    width: 100%; /* Por defecto ocupa el 100% en móvil */
-    max-width: 450px; /* Ancho máximo para la tarjeta en escritorio */
+    background: linear-gradient(145deg, var(--bg-light), #f0f0f0);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%;
+    max-width: 450px; /* Mantener un max-width para desktop */
     text-align: left;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    order: 2; /* Por defecto se muestra después de las actividades en flexbox */
+    align-items: stretch;
+}
+
+.user-info-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
 }
 
 .user-info-card h3 {
     color: var(--primary-color);
     margin-bottom: 15px;
-    font-size: 1.6em;
+    font-size: 1.8em;
     text-align: center;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 8px;
 }
 
-.user-info-card p {
-    font-size: 1.05em;
+.user-details-wrapper {
+    display: flex;
+    flex-direction: column; /* Apilar la info de texto y el avatar */
+    align-items: center; /* Centrar horizontalmente */
+    gap: 15px; /* Espacio entre los bloques de info y avatar */
+    padding: 15px 0; /* Padding interno */
+}
+
+.profile-info-text {
+    text-align: center; /* Centrar el texto en una columna */
+}
+
+.profile-info-text p {
+    font-size: 1.1em;
     color: var(--text-dark);
-    line-height: 1.5;
-    display: flex; /* Para alinear el strong y el span */
+    line-height: 1.4;
+    margin-bottom: 5px;
+    display: flex; /* Para que strong y span estén en la misma línea */
+    justify-content: center; /* Centrar el contenido de cada párrafo */
     align-items: baseline;
-    flex-wrap: wrap; /* Envolver en caso de texto largo */
+    flex-wrap: wrap;
 }
 
-.user-info-card p strong {
-    color: var(--primary-color);
-    margin-right: 10px;
-    min-width: 70px; /* Ancho mínimo para las etiquetas (Nombre:, Email:, Rol:) */
-    display: inline-block; /* Para que min-width funcione */
+.profile-info-text p strong {
+    color: var(--secondary-color);
+    margin-right: 8px;
+    min-width: 60px;
+    text-align: right; /* Alineación del strong */
 }
 
 .profile-avatar {
     text-align: center;
-    margin-bottom: 20px;
+    margin-top: 10px; /* Espacio superior para separar del rol */
 }
 
 .profile-avatar img {
-    width: 100px;
+    width: 100px; /* Tamaño un poco más grande para la imagen central */
     height: 100px;
-    border-radius: 50%;
+    border-radius: 10px;
     object-fit: cover;
     border: 3px solid var(--primary-color);
     margin-bottom: 10px;
+    display: block; /* Para que los botones se alineen debajo */
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .profile-avatar .btn.btn-small {
-    padding: 8px 15px;
-    font-size: 0.85em;
+    padding: 5px 12px;
+    font-size: 0.75em;
+    background-color: var(--secondary-color);
+    color: white;
+    margin: 5px; /* Espacio entre los botones de la imagen */
+}
+
+.profile-avatar .btn.btn-small:hover {
+    background-color: var(--primary-color);
 }
 
 .profile-actions-buttons {
     display: flex;
     gap: 10px;
     margin-top: 20px;
-    justify-content: center; /* Centra los botones dentro de la tarjeta */
-    flex-wrap: wrap; /* Asegura que los botones se envuelvan en móviles */
+    padding: 0 15px 15px 15px;
 }
 
+.profile-actions-buttons .btn {
+    flex-grow: 1;
+    padding: 10px 20px;
+    font-size: 0.95em;
+}
 
-/* Estilos para "Mis Actividades" (izquierda en escritorio) */
 .user-activities {
-    background-color: var(--bg-light);
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+    background: linear-gradient(145deg, var(--bg-light), #f0f0f0);
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     padding: 30px;
-    width: 100%; /* Por defecto ocupa el 100% en móvil */
-    max-width: 650px; /* Ancho máximo para la sección de actividades en escritorio */
+    width: 100%;
+    max-width: 450px; /* Ajustado para que sea igual que user-info-card */
     text-align: left;
-    order: 1; /* Se mostrará primero en el orden de flexbox */
+    order: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.user-activities:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--card-hover-shadow);
 }
 
 .user-activities h3 {
     color: var(--primary-color);
-    margin-bottom: 20px;
-    font-size: 1.8em;
+    margin-bottom: 25px;
+    font-size: 2em;
     text-align: center;
+    border-bottom: 2px solid var(--accent-color);
+    padding-bottom: 10px;
 }
 
 .user-activities h4 {
     color: var(--text-dark);
-    margin-top: 25px;
+    margin-top: 30px;
     margin-bottom: 15px;
-    font-size: 1.3em;
+    font-size: 1.4em;
     border-bottom: 1px solid var(--border-color);
     padding-bottom: 8px;
 }
@@ -666,31 +658,33 @@ form {
 
 .activity-item {
     background-color: var(--bg-subtle);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.95em;
-    color: var(--text-dark);
-    flex-wrap: wrap; /* Permite que el contenido se envuelva en móviles */
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 12px;
+    font-size: 1em;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.activity-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
 .activity-item span:first-child {
-    flex-grow: 1; /* Permite que el texto de la actividad ocupe el espacio */
-    margin-right: 10px; /* Espacio entre la descripción y la fecha */
+    flex-grow: 1;
+    margin-right: 10px;
+    font-weight: 500;
 }
 
 .activity-item .timestamp {
-    font-size: 0.85em;
-    color: #777;
-    white-space: nowrap; /* Evita que la fecha y hora se partan */
+    font-size: 0.9em;
+    color: #888;
+    white-space: nowrap;
     text-align: right;
 }
 
-/* Ocultar los formularios de edición por defecto */
 #edit-profile-form-container,
 #change-password-form-container {
     background-color: var(--bg-light);
@@ -699,12 +693,11 @@ form {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     max-width: 500px;
     margin: 30px auto;
-    display: none; /* Asegúrate de que JavaScript controle la visibilidad */
-    flex-direction: column; /* Para mantener el formato de formulario */
+    display: none;
+    flex-direction: column;
     gap: 20px;
 }
 
-/* Mostrar los formularios cuando se activen por JS */
 #edit-profile-form-container.active,
 #change-password-form-container.active {
     display: flex;
@@ -723,7 +716,6 @@ form {
     font-weight: 700;
 }
 
-/* Filtros para la gestión de usuarios (similar a productos) */
 .user-management-filters {
     display: flex;
     flex-wrap: wrap;
@@ -751,20 +743,19 @@ form {
     flex-shrink: 0;
 }
 
-/* Tabla de Usuarios para Administrador */
 .user-table-container {
-    overflow-x: auto; /* Permite desplazamiento horizontal en pantallas pequeñas */
+    overflow-x: auto;
     margin-top: 20px;
-    background-color: var(--bg-light); /* Fondo para la tabla */
+    background-color: var(--bg-light);
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .user-table {
     width: 100%;
-    border-collapse: collapse; /* Elimina el espacio entre las celdas */
+    border-collapse: collapse;
     margin-bottom: 20px;
-    min-width: 700px; /* Ancho mínimo para la tabla en pantallas pequeñas */
+    min-width: 700px;
 }
 
 .user-table th,
@@ -772,7 +763,7 @@ form {
     border: 1px solid var(--border-color);
     padding: 12px 15px;
     text-align: left;
-    vertical-align: middle; /* Alinea el contenido verticalmente en el medio */
+    vertical-align: middle;
 }
 
 .user-table th {
@@ -784,18 +775,18 @@ form {
 }
 
 .user-table tr:nth-child(even) {
-    background-color: var(--bg-subtle); /* Fondo sutil para filas pares */
+    background-color: var(--bg-subtle);
 }
 
 .user-table tr:hover {
-    background-color: #f0f0f0; /* Ligero hover en filas */
+    background-color: #f0f0f0;
 }
 
 .user-table .user-actions {
     display: flex;
-    gap: 8px; /* Espacio entre los botones de acción */
-    justify-content: flex-start; /* Alinea los botones a la izquierda */
-    flex-wrap: wrap; /* Permite que los botones se envuelvan */
+    gap: 8px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
 }
 
 .user-table .user-actions select,
@@ -812,7 +803,7 @@ form {
     background-color: #f4f4f4;
     border: 1px solid #ccc;
     color: var(--text-dark);
-    flex-grow: 1; /* Permite que el select crezca */
+    flex-grow: 1;
 }
 
 .user-table .user-actions button.save-role-btn {
@@ -821,7 +812,7 @@ form {
 }
 
 .user-table .user-actions button.save-role-btn:hover {
-    background-color: #008f6b; /* Un tono un poco más oscuro de success-color */
+    background-color: #008f6b;
 }
 
 .user-table .user-actions button.delete-user-btn {
@@ -830,10 +821,9 @@ form {
 }
 
 .user-table .user-actions button.delete-user-btn:hover {
-    background-color: #c20f4c; /* Un tono un poco más oscuro de error-color */
+    background-color: #c20f4c;
 }
 
-/* Mensaje cuando no hay usuarios para mostrar */
 #no-users-message {
     text-align: center;
     font-size: 1.2em;
@@ -842,9 +832,39 @@ form {
     width: 100%;
 }
 
-/* =====================================================================
-   FOOTER
-   ===================================================================== */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 15px;
+}
+
+.pagination button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: var(--secondary-color);
+}
+
+.pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+#page-info {
+    font-size: 1.1em;
+    color: var(--text-dark);
+}
+
 footer {
     background-color: var(--text-dark);
     color: var(--text-light);
@@ -859,41 +879,34 @@ footer p {
     margin: 0;
 }
 
-/* =====================================================================
-   MEDIA QUERIES (RESPONSIVIDAD)
-   ===================================================================== */
-
-/* Para pantallas medianas (tablets y algunos laptops) */
 @media (min-width: 769px) {
     .header .container {
-        flex-wrap: nowrap; /* Evita que el logo y la nav se envuelvan */
+        flex-wrap: nowrap;
     }
 
     .header nav ul {
         gap: 30px;
     }
 
-    /* Distribución de "Mi Cuenta" en dos columnas */
     .my-account-content {
-        justify-content: space-between; /* Espacia las dos columnas en escritorio */
-        align-items: flex-start; /* Alinea los elementos en la parte superior */
+        justify-content: center; /* Centrar las dos tarjetas cuando son del mismo tamaño */
+        align-items: flex-start;
     }
 
     .user-activities {
-        flex: 1; /* Permite que ocupe espacio, sin crecer demasiado */
-        min-width: 380px; /* Ancho mínimo para actividades */
-        order: 1; /* Mis Actividades a la izquierda */
+        flex: 1;
+        min-width: 380px;
+        order: 1;
     }
 
     .user-info-card {
-        flex-shrink: 0; /* Evita que la tarjeta se encoja si el espacio es limitado */
-        min-width: 300px; /* Ancho mínimo para la tarjeta de info */
-        max-width: 450px; /* Ancho máximo para la tarjeta de info */
-        order: 2; /* Información del Perfil a la derecha */
+        flex-shrink: 0;
+        min-width: 300px;
+        max-width: 450px; /* Ambos con el mismo max-width */
+        order: 2;
     }
 }
 
-/* Para pantallas pequeñas (móviles) */
 @media (max-width: 768px) {
     .header .container {
         flex-direction: column;
@@ -945,18 +958,18 @@ footer p {
 
     .filters input, .filters select, .filters button,
     .user-management-filters input, .user-management-filters select, .user-management-filters button {
-        width: 100%; /* Ocupa todo el ancho disponible */
-        min-width: unset; /* Elimina el min-width */
+        width: 100%;
+        min-width: unset;
     }
 
     .product-grid {
-        grid-template-columns: 1fr; /* Una columna en móviles */
+        grid-template-columns: 1fr;
         gap: 20px;
         padding: 10px;
     }
 
     .product-actions {
-        flex-direction: column; /* Apila los botones de acción del producto */
+        flex-direction: column;
     }
 
     .product-actions .btn {
@@ -968,38 +981,81 @@ footer p {
         margin: 20px auto;
     }
 
-    /* Las secciones principales de Mi Cuenta se apilarán naturalmente */
     .user-info-card,
     .user-activities {
-        max-width: 95%; /* Un poco más de ancho en móviles */
-        margin: 0 auto; /* Centra los elementos */
+        max-width: 95%;
+        margin: 0 auto;
         padding: 20px;
     }
     
     .profile-actions-buttons {
-        flex-direction: column; /* Apila los botones de perfil en móvil */
+        flex-direction: column;
+        padding: 0 15px 15px 15px;
+        gap: 8px;
     }
+
     .profile-actions-buttons button {
         width: 100%;
     }
 
     .user-table {
-        min-width: 100%; /* Asegura que la tabla ocupe todo el ancho disponible en móvil */
+        min-width: 100%;
     }
     .user-table th, .user-table td {
-        padding: 8px 10px; /* Reduce el padding en tablas para pantallas pequeñas */
+        padding: 8px 10px;
         font-size: 0.8em;
     }
     .user-table .user-actions {
-        flex-direction: column; /* Apila los botones de acción en la tabla de admin */
+        flex-direction: column;
     }
     .user-table .user-actions select,
     .user-table .user-actions button {
-        width: 100%; /* Asegura que se estiren en móvil */
+        width: 100%;
+    }
+
+    .user-info-card {
+        padding-top: 15px;
+        padding-left: 15px;
+        padding-right: 15px;
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    /* Ajustes específicos para que el avatar y texto se centren y apilen correctamente en móvil */
+    .user-details-wrapper {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .profile-info-text {
+        text-align: center;
+        padding: 0;
+    }
+
+    .profile-info-text p {
+        flex-direction: column; /* Apilar strong y span */
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .profile-info-text p strong {
+        text-align: center;
+        margin-right: 0;
+        min-width: unset;
+    }
+
+    .profile-avatar {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .profile-avatar img {
+        width: 80px;
+        height: 80px;
+        margin-bottom: 8px;
     }
 }
 
-/* Para pantallas muy pequeñas (smartphones pequeños) */
 @media (max-width: 480px) {
     .hero-title {
         font-size: 2em;
@@ -1019,11 +1075,10 @@ footer p {
         font-size: 1.6em;
     }
 
-    /* Ajustes finos para tarjetas y actividades */
     .user-info-card,
     .user-activities,
     .form-container {
-        padding: 15px; /* Reduce el padding en pantallas muy pequeñas */
+        padding: 15px;
     }
     .user-info-card h3, .user-activities h3 {
         font-size: 1.4em;
@@ -1037,5 +1092,10 @@ footer p {
     }
     .activity-item .timestamp {
         font-size: 0.8em;
+    }
+
+    .profile-avatar img {
+        width: 70px;
+        height: 70px;
     }
 }

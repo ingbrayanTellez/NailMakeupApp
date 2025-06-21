@@ -6,13 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const activityMessageContainer = document.getElementById('activity-message-container');
 
     // Elementos de perfil
-    const profileAvatarImg = document.getElementById('profile-image'); // ID actualizado
-    const avatarUploadInput = document.getElementById('avatarUploadInput'); // Nuevo ID
-    const changeAvatarBtn = document.getElementById('changeAvatarBtn'); // ID actualizado
-    const saveAvatarBtn = document.getElementById('saveAvatarBtn'); // Nuevo
-    const cancelAvatarBtn = document.getElementById('cancelAvatarBtn'); // Nuevo
-    const avatarFileNameSpan = document.getElementById('avatarFileName'); // Nuevo
-    const avatarMessageContainer = document.getElementById('avatarMessage'); // Nuevo
+    const profileAvatarImg = document.getElementById('profile-image');
+    const avatarUploadInput = document.getElementById('avatarUploadInput');
+    const changeAvatarBtn = document.getElementById('changeAvatarBtn');
+    const saveAvatarBtn = document.getElementById('saveAvatarBtn');
+    const cancelAvatarBtn = document.getElementById('cancelAvatarBtn');
+    const avatarFileNameSpan = document.getElementById('avatarFileName');
+    const avatarMessageContainer = document.getElementById('avatarMessage');
 
     const profileUsername = document.getElementById('profile-username');
     const profileEmail = document.getElementById('profile-email');
@@ -48,17 +48,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message-container', type);
         messageDiv.innerHTML = `<p>${message}</p>`;
-        container.innerHTML = ''; // Limpiar mensajes anteriores
+        container.innerHTML = '';
         container.appendChild(messageDiv);
         
         setTimeout(() => {
-            messageDiv.classList.add('show'); // Añadir clase para la transición CSS
+            messageDiv.classList.add('show');
         }, 10); 
 
         setTimeout(() => {
             messageDiv.classList.remove('show');
             messageDiv.addEventListener('transitionend', () => {
-                messageDiv.remove(); // Eliminar el elemento después de la transición
+                messageDiv.remove();
             }, { once: true });
         }, 5000);
     }
@@ -100,30 +100,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Almacenar el ID del usuario en localStorage para futuras peticiones
                 localStorage.setItem('currentUserId', data._id);
 
                 if (profileUsername) profileUsername.textContent = data.username;
                 if (profileEmail) profileEmail.textContent = data.email;
                 if (profileRole) profileRole.textContent = data.role;
-                if (profileAvatarImg) { // Usar el nuevo ID
-                    profileAvatarImg.src = data.profileImage ? `/uploads/${data.profileImage}?t=${new Date().getTime()}` : '/img/default-avatar.png';
+                if (profileAvatarImg) {
+                    // CORRECCIÓN CLAVE: Usar directamente data.profileImage, ya que el backend envía la ruta completa
+                    profileAvatarImg.src = data.profileImage 
+                        ? `${data.profileImage}?t=${new Date().getTime()}` // Eliminado '/img/avatars/' aquí
+                        : '/img/default-avatar.png';
                 }
                 
                 if (editUsernameInput) editUsernameInput.value = data.username;
                 if (editEmailInput) editEmailInput.value = data.email;
 
-                // Ocultar/mostrar el enlace de administración si existe
                 const adminNavContainer = document.getElementById('nav-admin-dashboard-container');
                 if (adminNavContainer) {
                     if (data.role === 'admin') {
-                        adminNavContainer.style.display = 'list-item'; // Mostrar
+                        adminNavContainer.style.display = 'list-item';
                     } else {
-                        adminNavContainer.style.display = 'none'; // Ocultar
+                        adminNavContainer.style.display = 'none';
                     }
                 }
                 
-                loadUserActivity(data._id); // Cargar actividad del usuario
+                loadUserActivity(data._id);
             } else {
                 if (myAccountMessageContainer) {
                     showMessage(myAccountMessageContainer, data.message || 'Error al cargar el perfil.', 'error');
@@ -141,16 +142,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Gestión de Perfil ---
     if (editProfileBtn) {
         editProfileBtn.addEventListener('click', () => {
-            if (editProfileFormContainer) editProfileFormContainer.classList.remove('hidden-section');
-            if (changePasswordFormContainer) changePasswordFormContainer.classList.add('hidden-section'); // Ocultar el otro formulario
-            if (myAccountMessageContainer) myAccountMessageContainer.innerHTML = ''; // Limpiar mensajes
+            if (editProfileFormContainer) {
+                editProfileFormContainer.classList.add('active'); // Mostrar el formulario de edición
+            }
+            if (changePasswordFormContainer) {
+                changePasswordFormContainer.classList.remove('active'); // Asegurarse de que el otro formulario esté oculto
+            }
+            if (myAccountMessageContainer) myAccountMessageContainer.innerHTML = '';
             if (editProfileForm) clearValidationErrors(editProfileForm);
         });
     }
 
     if (cancelEditProfileBtn) {
         cancelEditProfileBtn.addEventListener('click', () => {
-            if (editProfileFormContainer) editProfileFormContainer.classList.add('hidden-section');
+            if (editProfileFormContainer) {
+                editProfileFormContainer.classList.remove('active'); // Ocultar el formulario de edición
+            }
             if (myAccountMessageContainer) myAccountMessageContainer.innerHTML = '';
             if (editProfileForm) clearValidationErrors(editProfileForm);
         });
@@ -188,8 +195,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (myAccountMessageContainer) {
                         showMessage(myAccountMessageContainer, data.message || 'Perfil actualizado con éxito.', 'success');
                     }
-                    if (editProfileFormContainer) editProfileFormContainer.classList.add('hidden-section');
-                    loadUserProfile(); // Volver a cargar el perfil para reflejar los cambios
+                    if (editProfileFormContainer) {
+                           editProfileFormContainer.classList.remove('active'); // Ocultar el formulario después de guardar
+                    }
+                    loadUserProfile();
                 } else {
                     if (myAccountMessageContainer) {
                         showMessage(myAccountMessageContainer, data.message || 'Error al actualizar el perfil.', 'error');
@@ -207,11 +216,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Gestión de Contraseña ---
     if (changePasswordBtn) {
         changePasswordBtn.addEventListener('click', () => {
-            if (changePasswordFormContainer) changePasswordFormContainer.classList.remove('hidden-section');
-            if (editProfileFormContainer) editProfileFormContainer.classList.add('hidden-section'); // Ocultar el otro formulario
-            if (myAccountMessageContainer) myAccountMessageContainer.innerHTML = ''; // Limpiar mensajes
+            if (changePasswordFormContainer) {
+                changePasswordFormContainer.classList.add('active'); // Mostrar el formulario de cambio de contraseña
+            }
+            if (editProfileFormContainer) {
+                editProfileFormContainer.classList.remove('active'); // Asegurarse de que el otro formulario esté oculto
+            }
+            if (myAccountMessageContainer) myAccountMessageContainer.innerHTML = '';
             if (changePasswordForm) {
-                changePasswordForm.reset(); // Limpiar campos
+                changePasswordForm.reset();
                 clearValidationErrors(changePasswordForm);
             }
         });
@@ -219,7 +232,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (cancelChangePasswordBtn) {
         cancelChangePasswordBtn.addEventListener('click', () => {
-            if (changePasswordFormContainer) changePasswordFormContainer.classList.add('hidden-section');
+            if (changePasswordFormContainer) {
+                changePasswordFormContainer.classList.remove('active'); // Ocultar el formulario de cambio de contraseña
+            }
             if (myAccountMessageContainer) myAccountMessageContainer.innerHTML = '';
             if (changePasswordForm) {
                 changePasswordForm.reset();
@@ -262,7 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (myAccountMessageContainer) {
                         showMessage(myAccountMessageContainer, data.message || 'Contraseña actualizada con éxito.', 'success');
                     }
-                    if (changePasswordFormContainer) changePasswordFormContainer.classList.add('hidden-section');
+                    if (changePasswordFormContainer) {
+                        changePasswordFormContainer.classList.remove('active'); // Ocultar el formulario después de guardar
+                    }
                     if (changePasswordForm) changePasswordForm.reset();
                 } else {
                     if (myAccountMessageContainer) {
@@ -278,19 +295,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Gestión de Imagen de Perfil ---
+    // --- Gestión de Imagen de Perfil (código previamente corregido) ---
     if (changeAvatarBtn && avatarUploadInput && saveAvatarBtn && cancelAvatarBtn && avatarFileNameSpan) {
         changeAvatarBtn.addEventListener('click', () => {
-            avatarUploadInput.click(); // Simular clic en input de tipo file
+            avatarUploadInput.click();
         });
 
         avatarUploadInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (file) {
                 avatarFileNameSpan.textContent = file.name;
-                saveAvatarBtn.style.display = 'inline-block'; // Mostrar botón de guardar
-                cancelAvatarBtn.style.display = 'inline-block'; // Mostrar botón de cancelar
-                changeAvatarBtn.style.display = 'none'; // Ocultar botón de cambiar imagen
+                saveAvatarBtn.style.display = 'inline-block';
+                cancelAvatarBtn.style.display = 'inline-block';
+                changeAvatarBtn.style.display = 'none';
             } else {
                 avatarFileNameSpan.textContent = '';
                 saveAvatarBtn.style.display = 'none';
@@ -310,14 +327,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const token = localStorage.getItem('token');
 
             const formData = new FormData();
-            // ¡¡¡CAMBIO CLAVE AQUÍ!!!
-            // Antes: formData.append('profileImage', file);
-            // Ahora:
-            formData.append('avatar', file); // <-- Multer en el backend espera 'avatar'
+            formData.append('avatar', file);
 
             try {
                 showMessage(avatarMessageContainer, 'Subiendo imagen...', 'info');
-                const response = await fetch(`/api/users/${userId}/avatar`, { // Nueva ruta para subir avatares
+                const response = await fetch(`/api/users/${userId}/avatar`, {
                     method: 'PUT',
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -330,14 +344,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     showMessage(avatarMessageContainer, data.message || 'Imagen de perfil actualizada.', 'success');
                     if (profileAvatarImg && data.profileImage) {
-                        profileAvatarImg.src = `/uploads/${data.profileImage}?t=${new Date().getTime()}`; // Actualizar imagen y forzar recarga
+                        // CORRECCIÓN CLAVE: Usar directamente data.profileImage
+                        profileAvatarImg.src = `${data.profileImage}?t=${new Date().getTime()}`; // Eliminado '/img/avatars/' aquí
                     }
-                    avatarUploadInput.value = ''; // Limpiar el input de archivo
+                    avatarUploadInput.value = '';
                     avatarFileNameSpan.textContent = '';
                     saveAvatarBtn.style.display = 'none';
                     cancelAvatarBtn.style.display = 'none';
                     changeAvatarBtn.style.display = 'inline-block';
-                    loadUserProfile(); // Recargar el perfil para asegurar que se refleja el cambio (por si acaso)
+                    loadUserProfile(); // Vuelve a cargar el perfil para asegurar la actualización en otros lugares
                 } else {
                     showMessage(avatarMessageContainer, data.message || 'Error al subir la imagen.', 'error');
                 }
@@ -349,7 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         cancelAvatarBtn.addEventListener('click', () => {
-            avatarUploadInput.value = ''; // Limpiar el input de archivo
+            avatarUploadInput.value = '';
             avatarFileNameSpan.textContent = '';
             saveAvatarBtn.style.display = 'none';
             cancelAvatarBtn.style.display = 'none';
@@ -357,7 +372,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage(avatarMessageContainer, 'Carga de imagen cancelada.', 'info');
         });
     }
-
 
     // --- Actividad del Usuario (Compras y Carrito) ---
     async function loadUserActivity(userId) {
@@ -380,10 +394,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.ok) {
                 if (data.purchases && data.purchases.length > 0 && purchaseHistoryList) {
-                    purchaseHistoryList.innerHTML = ''; // Limpiar
+                    purchaseHistoryList.innerHTML = '';
                     data.purchases.forEach(purchase => {
                         const li = document.createElement('li');
-                        li.classList.add('activity-item'); // Añadir clase para estilos
+                        li.classList.add('activity-item');
                         li.innerHTML = `
                             <span>Compra: ${purchase.id} - Total: $${purchase.total}</span>
                             <span class="timestamp">${new Date(purchase.date).toLocaleDateString()}</span>
@@ -395,10 +409,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (data.cartActivity && data.cartActivity.length > 0 && cartActivityList) {
-                    cartActivityList.innerHTML = ''; // Limpiar
+                    cartActivityList.innerHTML = '';
                     data.cartActivity.forEach(activity => {
                         const li = document.createElement('li');
-                        li.classList.add('activity-item'); // Añadir clase para estilos
+                        li.classList.add('activity-item');
                         li.innerHTML = `
                             <span>Carrito: Producto ${activity.productId} - Acción: ${activity.action}</span>
                             <span class="timestamp">${new Date(activity.date).toLocaleDateString()}</span>
@@ -430,7 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (myAccountNavBtn) {
         myAccountNavBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            // Oculta todas las secciones y luego muestra la de 'my-account'
             document.querySelectorAll('main > section').forEach(section => {
                 section.classList.add('hidden-section');
                 section.classList.remove('current-section');
@@ -442,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error("My account section with ID 'my-account' not found.");
             }
 
-            loadUserProfile(); // Cargar datos del perfil cada vez que se navega a la sección
+            loadUserProfile();
         });
     }
 
