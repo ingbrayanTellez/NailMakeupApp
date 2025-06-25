@@ -581,8 +581,8 @@ form {
 .profile-avatar img {
     width: 100px; /* Tamaño un poco más grande para la imagen central */
     height: 100px;
-    border-radius: 10px;
     object-fit: cover;
+    border-radius: 10px;
     border: 3px solid var(--primary-color);
     margin-bottom: 10px;
     display: block; /* Para que los botones se alineen debajo */
@@ -1097,5 +1097,312 @@ footer p {
     .profile-avatar img {
         width: 70px;
         height: 70px;
+    }
+}
+/* Contenedor principal del header para Flexbox */
+.header > .container.header-main-content {
+    display: flex;
+    justify-content: space-between; /* Espacia el logo, la búsqueda y los iconos de navegación */
+    align-items: center; /* Alinea verticalmente los elementos */
+    flex-wrap: wrap; /* Permite el envoltorio en pantallas pequeñas */
+    gap: 20px; /* Espacio entre los elementos principales */
+}
+
+/* Envoltorio para la barra de búsqueda en el header */
+.header-search-bar-wrapper {
+    flex-grow: 1; /* Permite que ocupe el espacio disponible */
+    margin: 0 20px; /* Espacio lateral */
+    max-width: 500px; /* Ancho máximo para la barra de búsqueda */
+    min-width: 150px; /* Ancho mínimo para evitar que se comprima demasiado */
+}
+
+#header-search-input {
+    width: 100%;
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color); /* Usar la variable para el borde */
+    outline: none;
+    font-size: 1em;
+    color: var(--text-dark);
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#header-search-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(191, 34, 104, 0.2); /* Sombra con el color primario */
+}
+
+/* Navegación de iconos en el header */
+.header-nav-icons ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    gap: 25px; /* Espacio entre los elementos del menú de iconos */
+    align-items: center;
+}
+
+/* La regla vacía para .header-nav-icons ul li ha sido eliminada */
+
+.nav-item-link { /* Clase para los enlaces dentro de la navegación de iconos */
+    display: flex;
+    flex-direction: column; /* Emoji arriba, texto abajo */
+    align-items: center; /* Centra el emoji y el texto */
+    text-decoration: none;
+    color: white; /* Color del texto del enlace */
+    font-size: 14px;
+    transition: color 0.3s ease, transform 0.2s ease;
+    white-space: nowrap; /* Evita que el texto se rompa */
+    padding: 5px 0; /* Pequeño padding para el área del clic */
+}
+
+.nav-item-link:hover {
+    color: var(--text-light); /* Color más claro al pasar el mouse */
+    transform: translateY(-2px); /* Pequeño efecto de elevación */
+}
+
+/* Estilos para los Emojis dentro de los enlaces */
+.nav-emoji {
+    font-size: 28px; /* Tamaño del emoji */
+    line-height: 1; /* Evita espacio extra vertical */
+    margin-bottom: 3px; /* Espacio entre el emoji y el texto */
+    display: block; /* Asegura que el emoji ocupe su propia línea dentro del flex-column */
+}
+
+/* Ajuste para el enlace de registro debajo del formulario de credenciales */
+.register-link-below-login {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.register-link-below-login a {
+    color: var(--primary-color); /* Usar el color primario para el enlace */
+    text-decoration: underline;
+    transition: color 0.3s ease;
+}
+
+.register-link-below-login a:hover {
+    color: var(--secondary-color);
+}
+
+/* MEDIA QUERIES para responsividad (ajustes para el nuevo header) */
+@media (max-width: 768px) {
+    .header > .container.header-main-content {
+        flex-direction: column; /* Apila logo, búsqueda y nav en columnas */
+        align-items: center; /* Centra los elementos apilados */
+        gap: 15px;
+    }
+
+    .header-search-bar-wrapper {
+        margin: 10px 0; /* Ajusta márgenes para móvil */
+        max-width: 90%; /* Hace la barra de búsqueda un poco más estrecha */
+    }
+
+    .header-nav-icons ul {
+        flex-wrap: wrap; /* Permite que los iconos se envuelvan si no caben en una línea */
+        justify-content: center; /* Centra los iconos envueltos */
+        gap: 15px; /* Reduce el espacio entre iconos en móvil */
+    }
+}
+
+/* Estilos para la sección del Carrito (AÑADIDOS) */
+#cart {
+    padding: 40px 20px;
+    background-color: var(--bg-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+#cart h2 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    font-size: 2.2em;
+}
+
+#cart-items-container {
+    margin-bottom: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-info {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    gap: 15px;
+}
+
+.cart-item-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.cart-item-details {
+    flex-grow: 1;
+}
+
+.cart-item-details h3 {
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    color: var(--text-dark);
+}
+
+.cart-item-details p {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.quantity-control button {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.2s ease;
+}
+
+.quantity-control button:hover {
+    background-color: #7a1ee0;
+}
+
+.quantity-control span {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-dark);
+}
+
+.cart-item-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.cart-item-subtotal {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.remove-item-btn {
+    padding: 8px 12px;
+    font-size: 0.9em;
+}
+
+.cart-summary {
+    text-align: right;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.cart-summary p {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--text-dark);
+    margin-bottom: 15px;
+}
+
+#cart-total {
+    color: var(--primary-color);
+    font-size: 1.4em;
+}
+
+#checkout-btn {
+    padding: 12px 25px;
+    font-size: 1.1em;
+    background-color: var(--success-color); /* Un color que indique acción de compra */
+}
+
+#checkout-btn:hover {
+    background-color: #218838; /* Más oscuro al pasar el ratón */
+}
+
+/* Responsive adjustments for Cart section */
+@media (max-width: 768px) {
+    .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .cart-item-info {
+        width: 100%;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .cart-item-details {
+        text-align: center;
+    }
+
+    .quantity-control {
+        justify-content: center;
+        margin-top: 10px;
+    }
+
+    .cart-item-actions {
+        width: 100%;
+        align-items: center;
+        margin-top: 15px;
+    }
+
+    .cart-item-subtotal {
+        margin-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    #cart {
+        padding: 20px 10px;
+    }
+    #cart h2 {
+        font-size: 1.8em;
+    }
+    .cart-item-img {
+        width: 60px;
+        height: 60px;
+    }
+    .cart-item-details h3 {
+        font-size: 1em;
+    }
+    .cart-item-subtotal {
+        font-size: 1em;
+    }
+    #checkout-btn {
+        padding: 10px 20px;
+        font-size: 1em;
     }
 }

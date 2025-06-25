@@ -1,7 +1,9 @@
+// public/js/admin.js
+
 document.addEventListener('DOMContentLoaded', () => {
     // Referencias a elementos del DOM del Panel de Administración
     const adminDashboardSection = document.getElementById('admin-dashboard');
-    const adminNavDashboardBtn = document.getElementById('nav-admin-dashboard'); // El botón de navegación del header
+    // const adminNavDashboardBtn = document.getElementById('nav-admin-dashboard'); // Este se maneja en main.js
     const adminMessageContainer = document.getElementById('admin-message-container');
 
     // Elementos de filtrado y búsqueda de usuarios
@@ -20,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentPage = 1; // Página actual, inicializada en 1
     const usersPerPage = 10; // Número de usuarios a mostrar por página
 
-    // Función de utilidad para mostrar mensajes (similar a la de myAccount.js)
+    // Función de utilidad para mostrar mensajes (adaptada para admin.js)
     function showMessage(container, message, type = 'success') {
         if (!container) {
             console.error("Message container not found:", container);
@@ -44,38 +46,67 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 5000);
     }
 
-    // --- Cargar y Mostrar Usuarios para el Administrador ---
+    /**
+     * Obtiene el token de autenticación del localStorage.
+     * @returns {string|null} El token si existe, de lo contrario null.
+     */
+    const getToken = () => {
+        return localStorage.getItem('token');
+    };
+
+    /**
+     * Obtiene la información del usuario actual del localStorage (o de la variable global si está disponible).
+     * @returns {object|null} El objeto de usuario si existe, de lo contrario null.
+     */
+    const getCurrentUserInfo = () => {
+        try {
+            const user = localStorage.getItem('user');
+            return user ? JSON.parse(user) : null;
+        } catch (e) {
+            console.error("Error parsing user from localStorage:", e);
+            return null;
+        }
+    };
+
+    // --- Cargar y Mostrar Usuarios para el Administrador (Expuesta globalmente) ---
     async function loadUsersForAdmin() {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            // Si no hay token, el usuario no está autenticado o su sesión ha expirado
-            if (adminDashboardSection) {
-                adminDashboardSection.innerHTML = '<p class="error">Debes iniciar sesión como administrador para ver esta sección.</p>';
+        const token = getToken();
+        const currentUser = getCurrentUserInfo();
+
+        if (!token || !currentUser || currentUser.role !== 'admin') {
+            if (userTableBody) {
+                userTableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No autorizado. Debes iniciar sesión como administrador para ver esta sección.</td></tr>`;
             }
+            if (noUsersMessage) {
+                noUsersMessage.classList.remove('hidden');
+                noUsersMessage.textContent = "Acceso denegado. Solo administradores.";
+            }
+            // Deshabilitar paginación
+            if (adminPrevPageBtn) adminPrevPageBtn.disabled = true;
+            if (adminNextPageBtn) adminNextPageBtn.disabled = true;
+            if (adminPageInfo) adminPageInfo.textContent = 'Página 0 de 0';
             return;
         }
 
-        const searchTerm = userSearchInput ? userSearchInput.value.trim() : ''; // Obtener término de búsqueda
-        const roleFilter = userRoleFilter ? userRoleFilter.value : ''; // Obtener filtro de rol
+        const searchTerm = userSearchInput ? userSearchInput.value.trim() : '';
+        const roleFilter = userRoleFilter ? userRoleFilter.value : '';
 
-        if (userTableBody) userTableBody.innerHTML = ''; // Limpiar el cuerpo de la tabla antes de cargar
-        if (noUsersMessage) noUsersMessage.textContent = 'Cargando usuarios...'; // Mostrar mensaje de carga
+        if (userTableBody) userTableBody.innerHTML = '';
+        if (noUsersMessage) {
+            noUsersMessage.classList.remove('hidden');
+            noUsersMessage.textContent = 'Cargando usuarios...';
+        }
 
         try {
-            // Construir la URL de la API con los parámetros de paginación y filtro
             let url = `/api/users?page=${currentPage}&limit=${usersPerPage}`;
-            if (searchTerm) {
-                url += `&search=${encodeURIComponent(searchTerm)}`; // Añadir término de búsqueda si existe
-            }
-            if (roleFilter) {
-                url += `&role=${encodeURIComponent(roleFilter)}`; // Añadir filtro de rol si existe
-            }
+            if (searchTerm) url += `&search=${encodeURIComponent(searchTerm)}`;
+            if (roleFilter) url += `&role=${encodeURIComponent(roleFilter)}`;
 
             const response = await fetch(url, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // Incluir el token de autorización
+                    'Authorization': `Bearer ${token}`
                 }
             });
 
@@ -86,18 +117,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     userTableBody.innerHTML = ''; // Limpiar de nuevo por si se cargó el mensaje de "cargando"
 
                     if (data.users.length === 0) {
-                        // Si no se encontraron usuarios, mostrar un mensaje
                         const noUsersRow = document.createElement('tr');
                         noUsersRow.innerHTML = `<td colspan="5" class="no-results-message">No se encontraron usuarios.</td>`;
                         userTableBody.appendChild(noUsersRow);
-                        // Deshabilitar botones de paginación
-                        adminPrevPageBtn.disabled = true;
-                        adminNextPageBtn.disabled = true;
-                        adminPageInfo.textContent = 'Página 0 de 0';
+                        if (noUsersMessage) noUsersMessage.classList.remove('hidden');
+                        if (adminPrevPageBtn) adminPrevPageBtn.disabled = true;
+                        if (adminNextPageBtn) adminNextPageBtn.disabled = true;
+                        if (adminPageInfo) adminPageInfo.textContent = 'Página 0 de 0';
                         return;
+                    } else {
+                         if (noUsersMessage) noUsersMessage.classList.add('hidden');
                     }
                     
-                    // Iterar sobre los usuarios y añadir una fila a la tabla por cada uno
                     data.users.forEach(user => {
                         const row = document.createElement('tr');
                         row.innerHTML = `
@@ -121,15 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     // Actualizar la información de paginación
                     currentPage = data.currentPage;
-                    adminPageInfo.textContent = `Página ${data.currentPage} de ${data.totalPages}`;
-                    adminPrevPageBtn.disabled = data.currentPage === 1; // Deshabilitar si es la primera página
-                    adminNextPageBtn.disabled = data.currentPage === data.totalPages; // Deshabilitar si es la última página
+                    if (adminPageInfo) adminPageInfo.textContent = `Página ${data.currentPage} de ${data.totalPages}`;
+                    if (adminPrevPageBtn) adminPrevPageBtn.disabled = data.currentPage === 1;
+                    if (adminNextPageBtn) adminNextPageBtn.disabled = data.currentPage === data.totalPages;
 
                     // Añadir listeners a los botones de "Guardar Rol" dinámicamente
                     document.querySelectorAll('.save-role-btn').forEach(button => {
                         button.addEventListener('click', async (e) => {
-                            const userId = e.target.dataset.userId; // Obtener el ID del usuario del atributo data
-                            const newRole = document.getElementById(`select-role-${userId}`).value; // Obtener el nuevo rol seleccionado
+                            const userId = e.target.dataset.userId;
+                            const newRole = document.getElementById(`select-role-${userId}`).value;
                             await updateRole(userId, newRole);
                         });
                     });
@@ -138,9 +169,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.querySelectorAll('.delete-user-btn').forEach(button => {
                         button.addEventListener('click', async (e) => {
                             const userId = e.target.dataset.userId;
-                            const currentLoggedInUserId = localStorage.getItem('currentUserId');
-                            
-                            // Prevenir que un administrador intente eliminar su propia cuenta
+                            const currentLoggedInUserId = localStorage.getItem('currentUserId'); // Obtener el ID del usuario logueado
+
                             if (userId === currentLoggedInUserId) {
                                 showMessage(adminMessageContainer, 'No puedes eliminar tu propia cuenta de administrador.', 'error');
                                 return;
@@ -153,20 +183,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
             } else {
-                // Manejar errores de la API
                 if (adminMessageContainer) {
                     showMessage(adminMessageContainer, data.message || 'Error al cargar usuarios.', 'error');
                 }
                 if (userTableBody) {
                     userTableBody.innerHTML = `<tr><td colspan="5" class="error">${data.message || 'Error al cargar usuarios.'}</td></tr>`;
                 }
-                // Deshabilitar paginación en caso de error
-                adminPrevPageBtn.disabled = true;
-                adminNextPageBtn.disabled = true;
-                adminPageInfo.textContent = 'Página 0 de 0';
+                if (noUsersMessage) noUsersMessage.classList.remove('hidden');
+                if (adminPrevPageBtn) adminPrevPageBtn.disabled = true;
+                if (adminNextPageBtn) adminNextPageBtn.disabled = true;
+                if (adminPageInfo) adminPageInfo.textContent = 'Página 0 de 0';
             }
         } catch (error) {
-            // Manejar errores de red
             if (adminMessageContainer) {
                 showMessage(adminMessageContainer, 'Error de red al cargar usuarios.', 'error');
             }
@@ -174,21 +202,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 userTableBody.innerHTML = `<tr><td colspan="5" class="error">Error de red al cargar usuarios.</td></tr>`;
             }
             console.error('Network error loading users:', error);
-             // Deshabilitar paginación en caso de error
-             adminPrevPageBtn.disabled = true;
-             adminNextPageBtn.disabled = true;
-             adminPageInfo.textContent = 'Página 0 de 0';
+            if (noUsersMessage) noUsersMessage.classList.remove('hidden');
+            if (adminPrevPageBtn) adminPrevPageBtn.disabled = true;
+            if (adminNextPageBtn) adminNextPageBtn.disabled = true;
+            if (adminPageInfo) adminPageInfo.textContent = 'Página 0 de 0';
         }
     }
 
     // --- Función para Actualizar el Rol de un Usuario ---
     async function updateRole(userId, newRole) {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        if (adminMessageContainer) {
-            showMessage(adminMessageContainer, 'Actualizando rol...', 'info');
+        const token = getToken();
+        const currentUser = getCurrentUserInfo();
+        if (!token || !currentUser || currentUser.role !== 'admin') {
+            showMessage(adminMessageContainer, 'No autorizado para modificar roles de usuario.', 'error');
+            return;
         }
+
+        showMessage(adminMessageContainer, 'Actualizando rol...', 'info');
 
         try {
             const response = await fetch(`/api/users/${userId}/role`, {
@@ -203,33 +233,28 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                if (adminMessageContainer) {
-                    showMessage(adminMessageContainer, data.message || 'Rol actualizado con éxito.', 'success');
-                }
-                // Actualizar el rol mostrado en la tabla sin recargar toda la lista
+                showMessage(adminMessageContainer, data.message || 'Rol actualizado con éxito.', 'success');
                 const userRoleSpan = document.getElementById(`user-role-display-${userId}`);
                 if (userRoleSpan) userRoleSpan.textContent = newRole;
             } else {
-                if (adminMessageContainer) {
-                    showMessage(adminMessageContainer, data.message || 'Error al actualizar el rol.', 'error');
-                }
+                showMessage(adminMessageContainer, data.message || 'Error al actualizar el rol.', 'error');
             }
         } catch (error) {
-            if (adminMessageContainer) {
-                showMessage(adminMessageContainer, 'Error de red al actualizar el rol.', 'error');
-            }
+            showMessage(adminMessageContainer, 'Error de red al actualizar el rol.', 'error');
             console.error('Network error updating role:', error);
         }
     }
 
     // --- Función para Eliminar un Usuario ---
     async function deleteUser(userId) {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        if (adminMessageContainer) {
-            showMessage(adminMessageContainer, 'Eliminando usuario...', 'info');
+        const token = getToken();
+        const currentUser = getCurrentUserInfo();
+        if (!token || !currentUser || currentUser.role !== 'admin') {
+            showMessage(adminMessageContainer, 'No autorizado para eliminar usuarios.', 'error');
+            return;
         }
+
+        showMessage(adminMessageContainer, 'Eliminando usuario...', 'info');
 
         try {
             const response = await fetch(`/api/users/${userId}`, {
@@ -242,20 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (response.ok) {
-                if (adminMessageContainer) {
-                    showMessage(adminMessageContainer, data.message || 'Usuario eliminado con éxito.', 'success');
-                }
-                // Recargar la lista de usuarios para reflejar la eliminación
-                loadUsersForAdmin(); 
+                showMessage(adminMessageContainer, data.message || 'Usuario eliminado con éxito.', 'success');
+                loadUsersForAdmin(); // Recargar la lista de usuarios para reflejar la eliminación
             } else {
-                if (adminMessageContainer) {
-                    showMessage(adminMessageContainer, data.message || 'Error al eliminar usuario.', 'error');
-                }
+                showMessage(adminMessageContainer, data.message || 'Error al eliminar usuario.', 'error');
             }
         } catch (error) {
-            if (adminMessageContainer) {
-                showMessage(adminMessageContainer, 'Error de red al eliminar usuario.', 'error');
-            }
+            showMessage(adminMessageContainer, 'Error de red al eliminar usuario.', 'error');
             console.error('Network error deleting user:', error);
         }
     }
@@ -305,40 +323,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- Listener para el botón de navegación "Administración" ---
-    if (adminNavDashboardBtn) {
-        adminNavDashboardBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Ocultar todas las secciones principales
-            document.querySelectorAll('main > section').forEach(section => {
-                section.classList.add('hidden-section');
-                section.classList.remove('current-section');
-            });
-            // Mostrar solo la sección del panel de administración
-            if (adminDashboardSection) {
-                adminDashboardSection.classList.remove('hidden-section');
-                adminDashboardSection.classList.add('current-section');
-            } else {
-                console.error("Admin dashboard section with ID 'admin-dashboard' not found.");
-            }
-            currentPage = 1; // Asegurarse de que la paginación empiece en la primera página al navegar a la sección
-            loadUsersForAdmin(); // Cargar usuarios cada vez que se navega a la sección
-        });
-    }
+    // Exportar la función loadUsersForAdmin para que main.js pueda llamarla
+    window.loadUsersForAdmin = loadUsersForAdmin;
 
-    // Cargar usuarios al iniciar si la URL tiene el hash #admin-dashboard
-    // Esto es útil si el usuario recarga la página o entra directamente con la URL
-    if (window.location.hash === '#admin-dashboard') {
-        if (adminDashboardSection) {
-            // Asegurarse de que la sección de administración está visible
-            document.querySelectorAll('main > section').forEach(section => {
-                section.classList.add('hidden-section');
-                section.classList.remove('current-section');
-            });
-            adminDashboardSection.classList.remove('hidden-section');
-            adminDashboardSection.classList.add('current-section');
-        }
-        currentPage = 1; // Asegurarse de que la paginación empiece en la primera página
-        loadUsersForAdmin();
-    }
+    // // La lógica de navegación inicial y el listener para el botón del header
+    // // se moverán a main.js para centralizar la navegación.
+    // // Este admin.js solo debe manejar la carga de datos cuando se le pida.
+
+    // // Cargar usuarios al iniciar si la URL tiene el hash #admin-dashboard
+    // if (window.location.hash === '#admin-dashboard') {
+    //      // Ya lo maneja main.js en showSection, no es necesario aquí.
+    // }
 });

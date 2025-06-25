@@ -6,42 +6,80 @@
     <title>Mi Tienda de NailMakeupApp</title>
     <link rel="stylesheet" href="/css/style.css">
     <link rel="icon" href="/img/mi_logo.png" type="image/png">
+    <!-- Font Awesome CDN se ha REMOVIDO ya que usaremos Emojis -->
 </head>
 <body>
     <header class="header">
-        <div class="container">
+        <!-- CLASE CORREGIDA: header-main-content para compatibilidad con CSS y JS -->
+        <div class="container header-main-content"> 
             <div class="logo-container">
                 <a href="/" id="logo-link">
-                    <img src="/img/mi_logo.1.png" alt="Mi Tienda NailMakeupApp Logo" class="header-logo">
+                    <img src="/img/mi_logo.1.png" alt="Mi Tienda NailMakeupApp Logo" class="header-logo"/>
                     <span class="logo-text">Mi Tienda NailMakeupApp</span>
                 </a>
             </div>
-            <nav>
+
+            <!-- Barra de búsqueda central -->
+            <!-- ID DE CONTENEDOR CORREGIDO: header-search-bar-wrapper -->
+            <div class="header-search-bar-wrapper">
+                <input type="text" id="header-search-input" placeholder="¿Qué buscas hoy?"/>
+            </div>
+
+            <!-- CLASE CORREGIDA: header-nav-icons -->
+            <nav class="header-nav-icons">
                 <ul>
-                    <li><a href="/" id="nav-home">Inicio</a></li>
-                    <li><a href="#products" id="nav-products">Productos</a></li>
-                    
-                    <li id="nav-add-product-container" style="display: none;">
-                        <a href="#add-product" id="nav-add-product">Añadir Producto</a>
-                    </li>
-                    
-                    <li id="nav-login-container" style="display: none;">
-                        <a href="#login" id="nav-login">Login</a>
-                    </li>
-                    <li id="nav-register-container" style="display: none;">
-                        <a href="#register" id="nav-register">Registro</a>
-                    </li>
-                    
+                    <!-- Ícono de Mi cuenta: VISIBLE SÓLO DESPUÉS DE LOGIN (manejado por JS) -->
                     <li id="nav-my-account-container" style="display: none;">
-                        <a href="#my-account" id="nav-my-account">Mi Cuenta</a>
-                    </li>
-                    
-                    <li id="nav-admin-dashboard-container" style="display: none;">
-                        <a href="#admin-dashboard" id="nav-admin-dashboard">Administración</a>
+                        <!-- ID CORREGIDO: nav-my-account-link -->
+                        <a href="#my-account" id="nav-my-account-link" class="nav-item-link">
+                            <span class="nav-emoji">👤</span> <!-- Emoji de usuario -->
+                            <span>Mi cuenta</span>
+                        </a>
                     </li>
 
+                    <!-- Credenciales (Login): Visible por defecto con emoji -->
+                    <li id="nav-login-container">
+                        <!-- ID CORREGIDO: nav-login-link -->
+                        <a href="#login" id="nav-login-link" class="nav-item-link">
+                            <span class="nav-emoji">🔑</span> <!-- Emoji de llave/acceso -->
+                            <span>Credenciales</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Carrito: Visible por defecto, oculto para rol 'admin' mediante JS -->
+                    <li id="nav-cart-container">
+                        <!-- ID CORREGIDO: nav-cart-link y añadido span para el contador -->
+                        <a href="#cart" id="nav-cart-link" class="nav-item-link">
+                            <span class="nav-emoji">🛒</span> <!-- Emoji de carrito de compras -->
+                            <span>Carrito <span id="cart-count">0</span></span> <!-- Añadido span para el contador -->
+                        </a>
+                    </li>
+                    
+                    <!-- Añadir Producto: VISIBLE SÓLO para rol 'admin' (manejado por JS) -->
+                    <li id="nav-add-product-container" style="display: none;">
+                        <!-- ID CORREGIDO: nav-add-product-link -->
+                        <a href="#add-product" id="nav-add-product-link" class="nav-item-link">
+                            <span class="nav-emoji">✨</span> <!-- Emoji para Añadir Producto -->
+                            <span>Añadir Producto</span>
+                        </a>
+                    </li>
+                    
+                    <!-- Administración: VISIBLE SÓLO para rol 'admin' (manejado por JS) -->
+                    <li id="nav-admin-dashboard-container" style="display: none;">
+                        <!-- ID CORREGIDO: nav-admin-dashboard-link -->
+                        <a href="#admin-dashboard" id="nav-admin-dashboard-link" class="nav-item-link">
+                            <span class="nav-emoji">🛠️</span> <!-- Emoji para Administración -->
+                            <span>Administración</span>
+                        </a>
+                    </li>
+
+                    <!-- Cerrar Sesión: VISIBLE SÓLO después de login (manejado por JS) -->
                     <li id="nav-logout-container" style="display: none;">
-                        <a href="#" id="nav-logout">Cerrar Sesión</a>
+                        <!-- ID CORREGIDO: nav-logout-link -->
+                        <a href="#" id="nav-logout-link" class="nav-item-link">
+                            <span class="nav-emoji">🚪</span> <!-- Emoji para Cerrar Sesión -->
+                            <span>Cerrar Sesión</span>
+                        </a>
                     </li>
                 </ul>
             </nav>
@@ -64,7 +102,7 @@
             <div id="global-message-container" class="message-container"></div>
 
             <div class="filters">
-                <input type="text" id="search-input" placeholder="Buscar productos...">
+                <input type="text" id="search-input" placeholder="Buscar productos..."/>
                 <select id="category-filter">
                     <option value="All">Todas las Categorías</option>
                     <option value="Esmaltes">Esmaltes</option>
@@ -72,8 +110,8 @@
                     <option value="Accesorios">Accesorios</option>
                     <option value="Maquillaje">Maquillaje</option>
                 </select>
-                <input type="number" id="min-price-input" placeholder="Precio Mínimo">
-                <input type="number" id="max-price-input" placeholder="Precio Máximo">
+                <input type="number" id="min-price-input" placeholder="Precio Mínimo"/>
+                <input type="number" id="max-price-input" placeholder="Precio Máximo"/>
                 <button id="apply-filters-btn" class="btn">Aplicar Filtros</button>
                 <button id="clear-filters-btn" class="btn btn-secondary">Limpiar Filtros</button>
             </div>
@@ -93,10 +131,10 @@
             <h2 id="product-form-title">Agregar o editar producto</h2>
             <div id="product-message-container" class="message-container"></div>
             <form id="product-form" enctype="multipart/form-data">
-                <input type="hidden" id="productId" name="productId"> 
+                <input type="hidden" id="productId" name="productId"/> 
                 <div class="form-group">
                     <label for="product-name">Nombre del Producto:</label>
-                    <input type="text" id="product-name" name="name" required>
+                    <input type="text" id="product-name" name="name" required/>
                     <span class="validation-error" id="product-name-error"></span>
                 </div>
 
@@ -108,7 +146,7 @@
 
                 <div class="form-group">
                     <label for="product-price">Precio:</label>
-                    <input type="number" id="product-price" name="price" step="0.01" required>
+                    <input type="number" id="product-price" name="price" step="0.01" required/>
                     <span class="validation-error" id="product-price-error"></span>
                 </div>
 
@@ -126,13 +164,13 @@
 
                 <div class="form-group">
                     <label for="product-stock">Stock:</label>
-                    <input type="number" id="product-stock" name="stock" required>
+                    <input type="number" id="product-stock" name="stock" required/>
                     <span class="validation-error" id="product-stock-error"></span>
                 </div>
 
                 <div class="form-group">
                     <label for="imageUrl">Imagen del Producto:</label>
-                    <input type="file" id="imageUrl" name="imageUrl" accept="image/*">
+                    <input type="file" id="imageUrl" name="imageUrl" accept="image/*"/>
                     <span class="validation-error" id="imageUrl-error"></span>
                     <span id="imageUrlDisplay" class="file-name-display">Ningún archivo seleccionado</span>
                 </div>
@@ -143,20 +181,22 @@
         </section>
 
         <section id="login" class="container hidden-section">
-            <h2>Iniciar Sesión</h2>
+            <h2>Credenciales</h2> <!-- Título de la sección cambiado a "Credenciales" -->
             <div id="login-message-container" class="message-container"></div>
             <form id="login-form">
                 <div class="form-group">
                     <label for="login-email">Email:</label>
-                    <input type="email" id="login-email" required>
+                    <input type="email" id="login-email" required/>
                     <span class="validation-error" id="login-email-error"></span>
                 </div>
                 <div class="form-group">
                     <label for="login-password">Contraseña:</label>
-                    <input type="password" id="login-password" required>
+                    <input type="password" id="login-password" required/>
                     <span class="validation-error" id="login-password-error"></span>
                 </div>
                 <button type="submit" class="btn">Entrar</button>
+                <!-- ENLACE DE REGISTRO DEBAJO DE LA CONTRASEÑA DE LOGIN (Única ubicación) -->
+                <p class="register-link-below-login">¿No tienes cuenta? <a href="#register">Regístrate aquí</a></p>
             </form>
         </section>
 
@@ -166,17 +206,17 @@
             <form id="register-form">
                 <div class="form-group">
                     <label for="register-username">Nombre de Usuario:</label>
-                    <input type="text" id="register-username" required>
+                    <input type="text" id="register-username" required/>
                     <span class="validation-error" id="register-username-error"></span>
                 </div>
                 <div class="form-group">
                     <label for="register-email">Email:</label>
-                    <input type="email" id="register-email" required>
+                    <input type="email" id="register-email" required/>
                     <span class="validation-error" id="register-email-error"></span>
                 </div>
                 <div class="form-group">
                     <label for="register-password">Contraseña:</label>
-                    <input type="password" id="register-password" required>
+                    <input type="password" id="register-password" required/>
                     <span class="validation-error" id="register-password-error"></span>
                 </div>
                 <button type="submit" class="btn">Registrarse</button>
@@ -190,21 +230,18 @@
             <div class="my-account-content">
                 <div class="user-info-card"> 
                     <h3>Información de Perfil</h3>
-                    <div class="user-details-wrapper"> <div class="profile-info-text"> 
-                            <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
-                            <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
-                            <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
-                        </div>
-                        <div class="profile-avatar">
-                            <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario">
-                            <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;">
-                            <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
-                            <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
-                            <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
-                            <span class="file-name-display" id="avatarFileName"></span>
-                            <div class="message-container" id="avatarMessage"></div>
-                        </div>
+                    <div class="profile-avatar">
+                        <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario"/>
+                        <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;"/>
+                        <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
+                        <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
+                        <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
+                        <span class="file-name-display" id="avatarFileName"></span>
+                        <div class="message-container" id="avatarMessage"></div>
                     </div>
+                    <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
+                    <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
+                    <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
                     
                     <div class="profile-actions-buttons">
                         <button id="edit-profile-btn" class="btn">Editar Perfil</button>
@@ -233,12 +270,12 @@
                 <form id="edit-profile-form">
                     <div class="form-group">
                         <label for="edit-username">Nombre de Usuario:</label>
-                        <input type="text" id="edit-username" required>
+                        <input type="text" id="edit-username" required/>
                         <span class="validation-error" id="edit-username-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="edit-email">Email:</label>
-                        <input type="email" id="edit-email" required>
+                        <input type="email" id="edit-email" required/>
                         <span class="validation-error" id="edit-email-error"></span>
                     </div>
                     <button type="submit" class="btn">Guardar Cambios</button>
@@ -251,17 +288,17 @@
                 <form id="change-password-form">
                     <div class="form-group">
                         <label for="current-password">Contraseña Actual:</label>
-                        <input type="password" id="current-password" required>
+                        <input type="password" id="current-password" required/>
                         <span class="validation-error" id="current-password-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="new-password">Nueva Contraseña:</label>
-                        <input type="password" id="new-password" required>
+                        <input type="password" id="new-password" required/>
                         <span class="validation-error" id="new-password-error"></span>
                     </div>
                     <div class="form-group">
                         <label for="confirm-new-password">Confirmar Nueva Contraseña:</label>
-                        <input type="password" id="confirm-new-password" required>
+                        <input type="password" id="confirm-new-password" required/>
                         <span class="validation-error" id="confirm-new-password-error"></span>
                     </div>
                     <button type="submit" class="btn">Actualizar Contraseña</button>
@@ -275,7 +312,7 @@
             <div id="admin-message-container" class="message-container"></div>
 
             <div class="user-management-filters">
-                <input type="text" id="userSearchInput" placeholder="Buscar por nombre o email...">
+                <input type="text" id="userSearchInput" placeholder="Buscar por nombre o email..."/>
                 <select id="userRoleFilter">
                     <option value="">Todos los Roles</option>
                     <option value="admin">Administrador</option>
@@ -308,6 +345,20 @@
                 <button id="admin-next-page-btn" class="btn" disabled>Siguiente</button>
             </div>
         </section>
+
+        <!-- Nueva sección para el carrito de compras (AÑADIDA) -->
+        <section id="cart" class="container hidden-section">
+            <h2>Mi Carrito de Compras</h2>
+            <div id="cart-items-container">
+                <p>Tu carrito está vacío. ¡Empieza a añadir productos!</p>
+                <!-- Los elementos del carrito se renderizarán aquí mediante JavaScript -->
+            </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cart-total">$0.00</span></p>
+                <button id="checkout-btn" class="btn">Proceder al Pago</button>
+            </div>
+        </section>
+
     </main>
 
     <footer>
@@ -317,9 +368,9 @@
     </footer>
 
     <script src="/js/auth.js"></script>
-    <script src="/js/main.js"></script>
-    <script src="/js/addProduct.js"></script>
-    <script src="/js/myAccount.js"></script> 
+    <script src="/js/myAccount.js"></script>
+    <script src="/js/addProduct.js"></script> 
     <script src="/js/admin.js"></script> 
+    <script src="/js/main.js"></script>
 </body>
 </html>
