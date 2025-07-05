@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Tienda NailMakeupApp</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="/img/mi_logo.png" type="image/png">
+</head>
+<body>
+    <header class="header">
+        <div class="container header-main-content"> 
+            <div class="logo-container">
+                <a href="#home" id="logo-link"> <!-- Apunta a #home -->
+                    <img src="/img/mi_logo.1.png" alt="Mi Tienda NailMakeupApp Logo" class="header-logo"/>
+                    <span class="logo-text">Mi Tienda NailMakeupApp</span>
+                </a>
+            </div>
+
+            <div class="header-search-bar-wrapper">
+                <input type="text" id="header-search-input" placeholder="¿Qué buscas hoy?"/>
+            </div>
+
+            <nav class="header-nav-icons">
+                <ul>
+                    <!-- Enlaces de navegación: Asegúrate de que los IDs aquí coincidan con main.js -->
+                    <li id="nav-home-container">
+                        <a href="#home" id="nav-home-link" class="nav-item-link">
+                            <span class="nav-emoji">🏠</span>
+                            <span>Inicio</span>
+                        </a>
+                    </li>
+                    <li id="nav-products-container">
+                        <a href="#products" id="nav-products-link" class="nav-item-link">
+                            <span class="nav-emoji">💅</span>
+                            <span>Productos</span>
+                        </a>
+                    </li>
+                    <li id="nav-my-account-container" style="display: none;">
+                        <a href="#my-account" id="nav-my-account-link" class="nav-item-link">
+                            <span class="nav-emoji">👤</span>
+                            <span>Mi cuenta</span>
+                        </a>
+                    </li>
+                    
+                    <li id="nav-login-container">
+                        <a href="#login" id="nav-login-link" class="nav-item-link">
+                            <span class="nav-emoji">🔑</span>
+                            <span>Credenciales</span>
+                        </a>
+                    </li>
+                    
+                    <li id="nav-cart-container">
+                        <a href="#cart" id="nav-cart-link" class="nav-item-link">
+                            <span class="nav-emoji">🛒</span>
+                            <span>Carrito <span id="cart-count">0</span></span>
+                        </a>
+                    </li>
+                    
+                    <li id="nav-add-product-container" style="display: none;">
+                        <a href="#add-product" id="nav-add-product-link" class="nav-item-link">
+                            <span class="nav-emoji">✨</span>
+                            <span>Añadir Producto</span>
+                        </a>
+                    </li>
+                    
+                    <li id="nav-admin-dashboard-container" style="display: none;">
+                        <a href="#admin-dashboard" id="nav-admin-dashboard-link" class="nav-item-link">
+                            <span class="nav-emoji">🛠️</span>
+                            <span>Administración</span>
+                        </a>
+                    </li>
+
+                    <li id="nav-logout-container" style="display: none;">
+                        <a href="#" id="nav-logout-link" class="nav-item-link">
+                            <span class="nav-emoji">🚪</span>
+                            <span>Cerrar Sesión</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero-section current-section">
+            <div class="hero-content">
+                <p class="hero-subtitle">Arte para Uñas</p>
+                <h2 class="hero-title">Crea magia con nuestros productos</h2>
+                <p class="hero-description">Explora nuestra exclusiva colección de esmaltes, bases y accesorios de uñas para transformar tu estilo.</p>
+                <button id="explore-products-btn" class="btn hero-btn">Explorar Productos</button>
+            </div>
+        </section>
+
+        <section id="products" class="container hidden-section">
+            <h2>Nuestros Productos</h2>
+
+            <div id="global-message-container" class="message-container"></div>
+
+            <div class="filters">
+                <input type="text" id="search-input" placeholder="Buscar productos..."/>
+                <select id="category-filter">
+                    <option value="All">Todas las Categorías</option>
+                    <option value="Esmaltes">Esmaltes</option>
+                    <option value="Bases">Bases</option>
+                    <option value="Accesorios">Accesorios</option>
+                    <option value="Maquillaje">Maquillaje</option>
+                </select>
+                <input type="number" id="min-price-input" placeholder="Precio Mínimo"/>
+                <input type="number" id="max-price-input" placeholder="Precio Máximo"/>
+                <button id="apply-filters-btn" class="btn">Aplicar Filtros</button>
+                <button id="clear-filters-btn" class="btn btn-secondary">Limpiar Filtros</button>
+            </div>
+
+            <div id="product-list" class="product-grid">
+            </div>
+            <p id="no-products-message" class="hidden"></p>
+
+            <div class="pagination">
+                <button id="prev-page-btn" class="btn" disabled>Anterior</button>
+                <span id="page-info">Página 1 de 1</span>
+                <button id="next-page-btn" class="btn" disabled>Siguiente</button>
+            </div>
+        </section>
+
+        <section id="add-product" class="container hidden-section">
+            <h2 id="product-form-title">Agregar o editar producto</h2>
+            <div id="product-message-container" class="message-container"></div>
+            <form id="product-form" enctype="multipart/form-data">
+                <input type="hidden" id="productId" name="productId"/> 
+                <div class="form-group">
+                    <label for="product-name">Nombre del Producto:</label>
+                    <input type="text" id="product-name" name="name" required/>
+                    <span class="validation-error" id="product-name-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-description">Descripción:</label>
+                    <textarea id="product-description" name="description" rows="5" required></textarea>
+                    <span class="validation-error" id="product-description-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-price">Precio:</label>
+                    <input type="number" id="product-price" name="price" step="0.01" required/>
+                    <span class="validation-error" id="product-price-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-category">Categoría:</label>
+                    <select id="product-category" name="category" required>
+                        <option value="">Selecciona una categoría</option>
+                        <option value="Esmaltes">Esmaltes</option>
+                        <option value="Bases">Bases</option>
+                        <option value="Accesorios">Accesorios</option>
+                        <option value="Maquillaje">Maquillaje</option>
+                    </select>
+                    <span class="validation-error" id="product-category-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="product-stock">Stock:</label>
+                    <input type="number" id="product-stock" name="stock" required/>
+                    <span class="validation-error" id="product-stock-error"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="imageUrl">Imagen del Producto:</label>
+                    <input type="file" id="imageUrl" name="imageUrl" accept="image/*"/>
+                    <span class="validation-error" id="imageUrl-error"></span>
+                    <span id="imageUrlDisplay" class="file-name-display">Ningún archivo seleccionado</span>
+                </div>
+
+                <button type="submit" class="btn" id="submit-product-btn">Añadir Producto</button>
+                <button type="button" class="btn btn-secondary" id="cancel-product-btn">Cancelar</button>
+            </form>
+        </section>
+
+        <section id="login" class="container hidden-section">
+            <h2>Credenciales</h2>
+            <div id="login-message-container" class="message-container"></div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">Email:</label>
+                    <input type="email" id="login-email" required autocomplete="username"/> 
+                    <span class="validation-error" id="login-email-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Contraseña:</label>
+                    <input type="password" id="login-password" required autocomplete="current-password"/> 
+                    <span class="validation-error" id="login-password-error"></span>
+                </div>
+                <button type="submit" class="btn">Entrar</button>
+                <p class="register-link-below-login">¿No tienes cuenta? <a href="#register">Regístrate aquí</a></p>
+            </form>
+        </section>
+
+        <section id="register" class="container hidden-section">
+            <h2>Registrarse</h2>
+            <div id="register-message-container" class="message-container"></div>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="register-username">Nombre de Usuario:</label>
+                    <input type="text" id="register-username" required autocomplete="username"/> 
+                    <span class="validation-error" id="register-username-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email:</label>
+                    <input type="email" id="register-email" required autocomplete="email"/> 
+                    <span class="validation-error" id="register-email-error"></span>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">Contraseña:</label>
+                    <input type="password" id="register-password" required autocomplete="new-password"/> 
+                    <span class="validation-error" id="register-password-error"></span>
+                </div>
+                <button type="submit" class="btn">Registrarse</button>
+            </form>
+        </section>
+
+        <section id="my-account" class="container hidden-section">
+            <h2>Mi Cuenta</h2>
+            <div id="my-account-message-container" class="message-container"></div>
+
+            <div class="my-account-content">
+                <div class="user-info-card"> 
+                    <h3>Información de Perfil</h3>
+                    <div class="profile-avatar">
+                        <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario"/>
+                        <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;"/>
+                        <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
+                        <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
+                        <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
+                        <span class="file-name-display" id="avatarFileName"></span>
+                        <div class="message-container" id="avatarMessage"></div>
+                    </div>
+                    <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
+                    <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
+                    <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
+                    
+                    <div class="profile-actions-buttons">
+                        <button id="edit-profile-btn" class="btn">Editar Perfil</button>
+                        <button id="change-password-btn" class="btn btn-secondary">Cambiar Contraseña</button>
+                    </div>
+                </div>
+
+                <div class="user-activities">
+                    <h3>Mi Actividad</h3>
+                    <div id="activity-message-container" class="message-container"></div>
+                    
+                    <h4>Movimientos de Compras</h4>
+                    <ul id="purchase-history-list" class="activity-list">
+                        <li>No hay compras registradas aún.</li>
+                    </ul>
+
+                    <h4>Actividad del Carrito</h4>
+                    <ul id="cart-activity-list" class="activity-list">
+                        <li>No hay actividad reciente en el carrito.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div id="edit-profile-form-container" class="form-container hidden-section"> 
+                <h3>Editar Mi Perfil</h3>
+                <form id="edit-profile-form">
+                    <div class="form-group">
+                        <label for="edit-username">Nombre de Usuario:</label>
+                        <input type="text" id="edit-username" required autocomplete="username"/> 
+                        <span class="validation-error" id="edit-username-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-email">Email:</label>
+                        <input type="email" id="edit-email" required autocomplete="email"/> 
+                        <span class="validation-error" id="edit-email-error"></span>
+                    </div>
+                    <button type="submit" class="btn">Guardar Cambios</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-edit-profile-btn">Cancelar</button>
+                </form>
+            </div>
+
+            <div id="change-password-form-container" class="form-container hidden-section"> 
+                <h3>Cambiar Contraseña</h3>
+                <form id="change-password-form">
+                    <!-- Campo de email/username oculto añadido para accesibilidad y autocompletado -->
+                    <input type="hidden" id="change-password-email" name="email" autocomplete="username"> 
+                    <div class="form-group">
+                        <label for="current-password">Contraseña Actual:</label>
+                        <input type="password" id="current-password" required autocomplete="current-password"/> 
+                        <span class="validation-error" id="current-password-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">Nueva Contraseña:</label>
+                        <input type="password" id="new-password" required autocomplete="new-password"/> 
+                        <span class="validation-error" id="new-password-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-new-password">Confirmar Nueva Contraseña:</label>
+                        <input type="password" id="confirm-new-password" required autocomplete="new-password"/> 
+                        <span class="validation-error" id="confirm-new-password-error"></span>
+                    </div>
+                    <button type="submit" class="btn">Actualizar Contraseña</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-change-password-btn">Cancelar</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="admin-dashboard" class="container hidden-section">
+            <h2>Panel de Administración de Usuarios</h2>
+            <div id="admin-message-container" class="message-container"></div>
+
+            <div class="user-management-filters">
+                <input type="text" id="userSearchInput" placeholder="Buscar por nombre o email..."/>
+                <select id="userRoleFilter">
+                    <option value="">Todos los Roles</option>
+                    <option value="admin">Administrador</option>
+                    <option value="user">Usuario</option>
+                    </select>
+                <button class="btn" id="applyUserFiltersBtn">Aplicar Filtros</button>
+                <button class="btn btn-secondary" id="clearUserFiltersBtn">Limpiar Filtros</button>
+            </div>
+
+            <div class="user-table-container">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID de Usuario</th>
+                            <th>Nombre de Usuario</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userTableBody">
+                        <tr><td colspan="5" id="no-users-message">Cargando usuarios...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="admin-user-pagination">
+                <button id="admin-prev-page-btn" class="btn" disabled>Anterior</button>
+                <span id="admin-page-info">Página 1 de 1</span>
+                <button id="admin-next-page-btn" class="btn" disabled>Siguiente</button>
+            </div>
+        </section>
+
+        <!-- Sección para el carrito de compras -->
+        <section id="cart" class="container hidden-section">
+            <h2>Mi Carrito de Compras</h2>
+            <div id="cart-items-container">
+                <p>Tu carrito está vacío. ¡Empieza a añadir productos!</p>
+            </div>
+            <div class="cart-summary">
+                <p>Total: <span id="cart-total">$0.00</span></p>
+                <button id="checkout-btn" class="btn">Proceder al Pago</button>
+            </div>
+        </section>
+
+        <!-- Sección de Checkout -->
+        <section id="checkout" class="container hidden-section">
+            <h2>Finalizar Compra</h2>
+            <div id="checkout-message-container" class="message-container"></div>
+
+            <div class="checkout-content">
+                <h3>Resumen del Pedido</h3>
+                <div id="checkout-order-summary" class="order-summary-table-container">
+                    <table class="order-summary-table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio Unitario</th>
+                                <th>Cantidad</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="checkout-items-list">
+                            <!-- Los ítems del carrito se insertarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                    <div class="cart-summary">
+                        <p>Total del Pedido: <span id="checkout-total">$0.00</span></p>
+                    </div>
+                </div>
+
+                <h3>Información de Envío</h3>
+                <form id="shipping-form">
+                    <div class="form-group">
+                        <label for="fullName">Nombre Completo:</label>
+                        <input type="text" id="fullName" required autocomplete="name"/> 
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Dirección:</label>
+                        <input type="text" id="address" required autocomplete="street-address"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">Ciudad:</label>
+                        <input type="text" id="city" required autocomplete="address-level2"/>
+                        
+                    <div class="form-group">
+                        <label for="country">País:</label>
+                        <input type="text" id="country" required autocomplete="country-name"/>
+                    </div>
+                </form>
+
+            <h3>Método de Pago</h3>
+            <div id="payment-options">
+                <p>Opciones de pago simuladas:</p>
+                <!-- ¡VERIFICA ESTA LÍNEA! Asegúrate de que el ID sea exactamente 'paymentMethod' -->
+                <select id="paymentMethod" class="form-group-select" required>
+                    <option value="">Selecciona un método de pago</option>
+                    <option value="credit_card">Tarjeta de Crédito</option>
+                    <option value="paypal">PayPal</option>
+                    <option value="transferencia">Transferencia Bancaria</option>
+                </select>
+                <!-- Asegúrate de que este span exista para los mensajes de error -->
+                <span class="validation-error" id="paymentMethod-error"></span>
+            </div>
+
+            <!-- Campos específicos para tarjeta de crédito, visibles solo si se selecciona "Tarjeta de Crédito" -->
+            <div id="credit-card-fields" class="mt-4" style="display: none;">
+            </div>
+
+                <button id="place-order-btn" class="btn btn-success">Finalizar Pedido</button>
+                <button type="button" id="cancel-checkout-btn" class="btn btn-secondary">Cancelar</button> 
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Mi Tienda NailMakeupApp. Todos los derechos reservados @bgtellezg.</p>
+        </div>
+    </footer>
+
+    <!-- Modal de Confirmación Personalizado -->
+    <div id="confirmModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <span class="close-button" id="closeConfirmModal">&times;</span>
+            <p id="confirmModalMessage">¿Estás seguro?</p>
+            <div class="modal-actions">
+                <button class="btn btn-danger" id="confirmModalBtnYes">Sí</button>
+                <button class="btn btn-secondary" id="confirmModalBtnNo">No</button>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal de Pasarela de Pago (Simulada) -->
+<div id="paymentModal" class="modal-overlay" style="display: none;">
+    <div class="modal-content">
+        <span class="close-button" id="closePaymentModal">&times;</span>
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Detalles de Pago</h2>
+        <form id="payment-form" class="space-y-4">
+            <div>
+                <label for="cardNumber" class="block text-gray-700 text-sm font-bold mb-2">Número de Tarjeta:</label>
+                <input type="text" id="cardNumber" placeholder="XXXX XXXX XXXX XXXX" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required pattern="\d{16}" title="Debe ser un número de tarjeta de 16 dígitos.">
+            </div>
+            <div class="flex space-x-4">
+                <div class="w-1/2">
+                    <label for="expiryDate" class="block text-gray-700 text-sm font-bold mb-2">Fecha de Vencimiento:</label>
+                    <input type="text" id="expiryDate" placeholder="MM/AA" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required pattern="(0[1-9]|1[0-2])\/\d{2}" title="Formato MM/AA (ej. 12/25)">
+                </div>
+                <div class="w-1/2">
+                    <label for="cvc" class="block text-gray-700 text-sm font-bold mb-2">CVC:</label>
+                    <input type="text" id="cvc" placeholder="XXX" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required pattern="\d{3,4}" title="Debe ser un código de 3 o 4 dígitos.">
+                </div>
+            </div>
+            <div>
+                <label for="cardName" class="block text-gray-700 text-sm font-bold mb-2">Nombre en la Tarjeta:</label>
+                <input type="text" id="cardName" placeholder="Nombre Apellido" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
+            </div>
+            <div id="payment-message-container" class="form-message-container mt-4" style="display: none;"></div>
+            <button type="submit" id="submitPaymentBtn" class="btn btn-primary w-full py-2 px-4 rounded-md text-white font-semibold">Pagar Ahora</button>
+            <button type="button" id="cancelPaymentBtn" class="btn btn-secondary w-full py-2 px-4 rounded-md mt-2">Cancelar</button>
+        </form>
+    </div>
+</div>
+
+    <!-- Scripts JS (ORDEN CORRECTA Y FINAL) -->
+    <script src="/js/auth.js"></script>
+    <script src="/js/addProduct.js"></script> 
+    <script src="/js/myAccount.js"></script> 
+    <script src="/js/admin.js"></script>
+    <script src="/js/checkout.js"></script>
+    <script src="/js/main.js"></script>    
+</body>
+</html>
