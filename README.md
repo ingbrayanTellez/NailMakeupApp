@@ -36,7 +36,7 @@
     * **Registro:** Permite a nuevos usuarios crear una cuenta.
     * **Login:** Permite a usuarios existentes iniciar sesión, obteniendo un token JWT.
 * **Navegación Dinámica y Control de Acceso (Frontend)::**
-    * Los enlaces de la barra de navegación (`Login`, `Registro`, `Añadir Producto`, `Mi Cuenta`, `Cerrar Sesión`) se muestran u ocultan automáticamente dependiendo del estado de autenticación y el rol del usuario (logueado/no logueado, administrador/usuario regular).
+    * Los enlaces de la barra de navegación (`Login`, `Registro`, `Añadir Producto`, `Mi Cuenta`, `Cerrar Sesión`, `Administracion`) se muestran u ocultan automáticamente dependiendo del estado de autenticación y el rol del usuario (logueado/no logueado, administrador/usuario regular).
     * La sección activa también cambia dinámicamente sin recargar la página.
     * **Sincronización de la UI en Tiempo Real:** La interfaz de usuario (navegación, botones de administración en productos, lista de productos) se actualiza instantáneamente después de acciones como login, registro, logout, añadir, editar o eliminar productos, sin requerir una recarga manual de la página.
 * **Gestión de Imágenes:** Las imágenes subidas a través de los formularios se almacenan localmente en la carpeta `public/uploads` del servidor, y son servidas correctamente al frontend.
@@ -73,12 +73,12 @@ Asegúrate de tener instalado lo siguiente:
     ```dotenv
     PORT=3000
     MONGO_URI=mongodb://localhost:27017/nail_makeup_db
-    JWT_SECRET=tu_secreto_jwt_muy_seguro_y_largo_aqui
-    JWT_EXPIRES_IN=1h # Ejemplo: el token expira en 1 hora
+    JWT_SECRET=JWT_SECRET=NailMakeupApp_ingtellezg_Readme
+    JWT_EXPIRES_IN=1h 
     ```
     * `PORT`: El puerto en el que se ejecutará el servidor (por defecto 3000).
     * `MONGO_URI`: Tu cadena de conexión a tu base de datos MongoDB (ej. `mongodb://localhost:27017/nail_makeup_db` para local, o una URL de MongoDB Atlas).
-    * `JWT_SECRET`: Una cadena de texto **larga y compleja** que se utilizará para firmar y verificar tus JSON Web Tokens. **¡Cámbiala por una cadena aleatoria y segura!**
+    * `JWT_SECRET`: Una cadena de texto "" que se utilizará para firmar y verificar tus JSON Web Tokens. **¡Cámbiala constantemente por una cadena aleatoria**
     * `JWT_EXPIRES_IN`: Define el tiempo de vida de tus tokens JWT (ej. `1h`, `7d`).
 
 4.  **Verificar la Carpeta de Subidas de Imágenes:**
@@ -87,7 +87,7 @@ Asegúrate de tener instalado lo siguiente:
 5.  **Iniciar el Servidor Backend:**
     Desde la raíz del proyecto, ejecuta:
     ```bash
-    node app.js
+    node Backend/app.js
     ```
     Verás un mensaje en la consola indicando que el servidor está escuchando en el puerto configurado y que MongoDB está conectado.
 
@@ -142,21 +142,7 @@ La causa más probable es una configuración incorrecta en el servidor Express p
 
 Aquí se detallan las áreas donde el proyecto puede expandirse para mejorar la funcionalidad y la experiencia del usuario.
 
-### 1. Funcionalidades para el Usuario (Frontend)
-
-* **Página de Detalles del Producto:** Al hacer clic en un producto, redirigir a una página dedicada con más imágenes, descripciones detalladas, opiniones de usuarios, productos relacionados y un botón para añadir al carrito.
-* **Carrito de Compras Persistente:** Implementar un carrito que guarde los ítems incluso después de cerrar el navegador (usando `localStorage` o base de datos para usuarios logueados).
-* **Proceso de Checkout Avanzado:**
-    * Formulario de dirección de envío y facturación.
-    * Integración con pasarelas de pago (Stripe, PayPal).
-    * Confirmación de pedido y resumen.
-* **Gestión de Pedidos del Usuario:** Una sección en "Mi Cuenta" donde el usuario pueda ver el estado de sus pedidos, historial de compras detallado, facturas, etc.
-* **Sistema de Valoraciones y Reseñas:** Permitir a los usuarios calificar y escribir reseñas sobre los productos.
-* **Favoritos/Lista de Deseos:** Opción para guardar productos en una lista de deseos para futuras compras.
-* **Notificaciones:** Alertas para el usuario sobre el estado de su pedido, nuevas ofertas, etc.
-* **Página de Contacto/Soporte:** Un formulario o información de contacto para que los usuarios puedan comunicarse con la tienda.
-
-### 2. Funcionalidades para el Administrador (Backend y Frontend)
+### 1. Funcionalidades para el Administrador (Backend y Frontend)
 
 * **Gestión de Pedidos:**
     * Panel para ver todos los pedidos, filtrar por estado (pendiente, enviado, entregado, cancelado).
@@ -170,7 +156,7 @@ Aquí se detallan las áreas donde el proyecto puede expandirse para mejorar la 
 * **Gestión de Ofertas/Descuentos:** Crear y aplicar códigos de descuento o promociones.
 * **Copia de Seguridad de la Base de Datos:** Implementar un sistema de copia de seguridad automático o manual.
 
-### 3. Mejoras Técnicas y de Rendimiento
+### 2. Mejoras Técnicas y de Rendimiento
 
 * **Paginación Avanzada:** Implementar paginación en el backend y frontend para productos y usuarios, mejorando el rendimiento con grandes volúmenes de datos.
 * **Optimización de Imágenes:** Comprimir imágenes al subirlas y servirlas en tamaños adecuados para diferentes dispositivos.
@@ -185,7 +171,7 @@ Aquí se detallan las áreas donde el proyecto puede expandirse para mejorar la 
     * Rate limiting para prevenir ataques de fuerza bruta.
 * **Despliegue Continuo (CI/CD):** Configurar un pipeline de CI/CD (GitHub Actions, GitLab CI) para automatizar el despliegue de la aplicación.
 
-### 4. Experiencia de Usuario (UX) y Diseño
+### 3. Experiencia de Usuario (UX) y Diseño
 
 * **Diseño Responsivo Completo:** Asegurar que la aplicación se vea y funcione perfectamente en cualquier dispositivo (móvil, tablet, escritorio).
 * **Mejoras Visuales:** Refinar la UI/UX con animaciones sutiles, transiciones y una paleta de colores coherente.
