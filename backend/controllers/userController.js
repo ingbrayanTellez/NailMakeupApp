@@ -76,6 +76,29 @@ exports.getUserById = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Get logged in user profile
+// @route   GET /api/users/me
+// @access  Private
+exports.getMe = asyncHandler(async (req, res) => {
+    // req.user viene del middleware 'protect' y contiene la información del usuario autenticado
+    console.log('DEBUG: getMe - req.user:', req.user); // Log para depuración
+
+    if (!req.user || !req.user._id) {
+        res.status(401);
+        throw new Error('No autorizado. Usuario no autenticado.');
+    }
+
+    // Busca al usuario usando el ID del token (req.user._id)
+    const user = await User.findById(req.user._id).select('-password');
+
+    if (!user) {
+        res.status(404);
+        throw new Error('Usuario no encontrado en la base de datos.');
+    }
+
+    res.status(200).json(user);
+});
+
 
 // @desc    Update user profile (self or by admin)
 // @route   PUT /api/users/:id
@@ -114,7 +137,8 @@ exports.updateUserProfile = asyncHandler(async (req, res) => {
         email: updatedUser.email,
         role: updatedUser.role,
         profileImage: updatedUser.profileImage || '/img/default-avatar.png', // Asegúrate de que el frontend reciba la ruta completa
-        message: 'Perfil actualizado con éxito'
+        message: 'Perfil actualizado con éxito',
+        user: updatedUser // Devolver el objeto de usuario actualizado para el frontend
     });
 });
 
@@ -290,9 +314,64 @@ exports.updateUserAvatar = asyncHandler(async (req, res) => {
 
     res.status(200).json({
         message: 'Avatar actualizado con éxito',
-        profileImage: user.profileImage // Devolver la ruta relativa completa al frontend
+        avatarUrl: user.profileImage // Devolver la ruta relativa completa al frontend
     });
 });
+
+// @desc    Update user password
+// @route   PUT /api/users/:id/password
+// @access  Private/User itself
+exports.changePassword = asyncHandler(async (req, res) => {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+
+    if (!user) {
+        res.status(404);
+        throw new Error('Usuario no encontrado.');
+    }
+
+    // Verificar si el usuario que intenta cambiar la contraseña es el dueño del perfil
+    if (req.user._id.toString() !== userId.toString()) {
+        res.status(403);
+        throw new Error('No autorizado para cambiar la contraseña de este usuario.');
+    }
+
+    const { email, oldPassword, newPassword } = req.body;
+
+    // Validar que se proporcionen las contraseñas
+    if (!oldPassword || !newPassword) {
+        res.status(400);
+        throw new Error('Por favor, proporciona la contraseña actual y la nueva contraseña.');
+    }
+
+    // Validar que el email proporcionado coincide con el del usuario
+    if (user.email !== email) {
+        res.status(400);
+        throw new Error('El email proporcionado no coincide con el usuario actual.');
+    }
+
+    // Verificar la contraseña actual
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) {
+        res.status(401);
+        throw new Error('La contraseña actual es incorrecta.');
+    }
+
+    // Validar la nueva contraseña (ej. longitud mínima)
+    if (newPassword.length < 6) {
+        res.status(400);
+        throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
+    }
+
+    // Hashear la nueva contraseña
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    await user.save();
+
+    res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
+});
+
 
 // @desc    Get user activity (purchases and cart)
 // @route   GET /api/users/:id/activity

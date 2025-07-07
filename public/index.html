@@ -223,26 +223,73 @@
             <div id="my-account-message-container" class="message-container"></div>
 
             <div class="my-account-content">
-                <div class="user-info-card"> 
-                    <h3>Información de Perfil</h3>
-                    <div class="profile-avatar">
-                        <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario"/>
-                        <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;"/>
-                        <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
-                        <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
-                        <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
-                        <span class="file-name-display" id="avatarFileName"></span>
-                        <div class="message-container" id="avatarMessage"></div>
+                <!-- NUEVO CONTENEDOR PARA AGRUPAR INFO DE PERFIL Y FORMULARIOS -->
+                <div class="profile-forms-wrapper"> 
+                    <div class="user-info-card"> 
+                        <h3>Información de Perfil</h3>
+                        <div class="profile-avatar">
+                            <img id="profile-image" src="/img/default-avatar.png" alt="Avatar de usuario"/>
+                            <input type="file" id="avatarUploadInput" accept="image/*" style="display: none;"/>
+                            <button id="changeAvatarBtn" class="btn btn-small">Cambiar Imagen</button>
+                            <button class="btn btn-small btn-success" id="saveAvatarBtn" style="display: none;">Guardar Nueva Imagen</button>
+                            <button class="btn btn-small btn-secondary" id="cancelAvatarBtn" style="display: none;">Cancelar</button>
+                            <span class="file-name-display" id="avatarFileName"></span>
+                            <div class="message-container" id="avatarMessage"></div>
+                        </div>
+                        <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
+                        <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
+                        <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
+                        
+                        <div class="profile-actions-buttons">
+                            <button id="edit-profile-btn" class="btn">Editar Perfil</button>
+                            <button id="change-password-btn" class="btn btn-secondary">Cambiar Contraseña</button>
+                        </div>
                     </div>
-                    <p><strong>Usuario:</strong> <span id="profile-username">Cargando...</span></p>
-                    <p><strong>Email:</strong> <span id="profile-email">Cargando...</span></p>
-                    <p><strong>Rol:</strong> <span id="profile-role">Cargando...</span></p>
-                    
-                    <div class="profile-actions-buttons">
-                        <button id="edit-profile-btn" class="btn">Editar Perfil</button>
-                        <button id="change-password-btn" class="btn btn-secondary">Cambiar Contraseña</button>
+
+                    <!-- FORMULARIOS MOVIDOS AQUÍ, DENTRO DE profile-forms-wrapper -->
+                    <div id="edit-profile-form-container" class="form-container hidden"> 
+                        <h3>Editar Mi Perfil</h3>
+                        <form id="edit-profile-form">
+                            <div class="form-group">
+                                <label for="edit-username">Nombre de Usuario:</label>
+                                <input type="text" id="edit-username" required autocomplete="username"/> 
+                                <span class="validation-error" id="edit-username-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit-email">Email:</label>
+                                <input type="email" id="edit-email" required autocomplete="email"/> 
+                                <span class="validation-error" id="edit-email-error"></span>
+                            </div>
+                            <button type="submit" class="btn">Guardar Cambios</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-edit-profile-btn">Cancelar</button>
+                        </form>
                     </div>
-                </div>
+
+                    <div id="change-password-form-container" class="form-container hidden"> 
+                        <h3>Cambiar Contraseña</h3>
+                        <form id="change-password-form">
+                            <!-- Campo de email/username oculto añadido para accesibilidad y autocompletado -->
+                            <input type="hidden" id="change-password-email" name="email" autocomplete="username"> 
+                            <div class="form-group">
+                                <label for="current-password">Contraseña Actual:</label>
+                                <input type="password" id="current-password" required autocomplete="current-password"/> 
+                                <span class="validation-error" id="current-password-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">Nueva Contraseña:</label>
+                                <input type="password" id="new-password" required autocomplete="new-password"/> 
+                                <span class="validation-error" id="new-password-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm-new-password">Confirmar Nueva Contraseña:</label>
+                                <input type="password" id="confirm-new-password" required autocomplete="new-password"/> 
+                                <span class="validation-error" id="confirm-new-password-error"></span>
+                            </div>
+                            <button type="submit" class="btn">Actualizar Contraseña</button>
+                            <button type="button" class="btn btn-secondary" id="cancel-change-password-btn">Cancelar</button>
+                        </form>
+                    </div>
+                </div> <!-- FIN DE profile-forms-wrapper -->
 
                 <div class="user-activities">
                     <h3>Mi Actividad</h3>
@@ -258,49 +305,6 @@
                         <li>No hay actividad reciente en el carrito.</li>
                     </ul>
                 </div>
-            </div>
-
-            <div id="edit-profile-form-container" class="form-container hidden-section"> 
-                <h3>Editar Mi Perfil</h3>
-                <form id="edit-profile-form">
-                    <div class="form-group">
-                        <label for="edit-username">Nombre de Usuario:</label>
-                        <input type="text" id="edit-username" required autocomplete="username"/> 
-                        <span class="validation-error" id="edit-username-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit-email">Email:</label>
-                        <input type="email" id="edit-email" required autocomplete="email"/> 
-                        <span class="validation-error" id="edit-email-error"></span>
-                    </div>
-                    <button type="submit" class="btn">Guardar Cambios</button>
-                    <button type="button" class="btn btn-secondary" id="cancel-edit-profile-btn">Cancelar</button>
-                </form>
-            </div>
-
-            <div id="change-password-form-container" class="form-container hidden-section"> 
-                <h3>Cambiar Contraseña</h3>
-                <form id="change-password-form">
-                    <!-- Campo de email/username oculto añadido para accesibilidad y autocompletado -->
-                    <input type="hidden" id="change-password-email" name="email" autocomplete="username"> 
-                    <div class="form-group">
-                        <label for="current-password">Contraseña Actual:</label>
-                        <input type="password" id="current-password" required autocomplete="current-password"/> 
-                        <span class="validation-error" id="current-password-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="new-password">Nueva Contraseña:</label>
-                        <input type="password" id="new-password" required autocomplete="new-password"/> 
-                        <span class="validation-error" id="new-password-error"></span>
-                    </div>
-                    <div class="form-group">
-                        <label for="confirm-new-password">Confirmar Nueva Contraseña:</label>
-                        <input type="password" id="confirm-new-password" required autocomplete="new-password"/> 
-                        <span class="validation-error" id="confirm-new-password-error"></span>
-                    </div>
-                    <button type="submit" class="btn">Actualizar Contraseña</button>
-                    <button type="button" class="btn btn-secondary" id="cancel-change-password-btn">Cancelar</button>
-                </form>
             </div>
         </section>
 
@@ -481,6 +485,6 @@
     <script src="/js/myAccount.js"></script> 
     <script src="/js/admin.js"></script>
     <script src="/js/checkout.js"></script>
-    <script src="/js/main.js"></script>    
+    <script src="/js/main.js"></script>     
 </body>
 </html>

@@ -1,18 +1,19 @@
-// backend/routes/userRoutes.js
 const express = require('express');
 const router = express.Router();
 const path = require('path'); // Necesario para Multer y rutas de archivos
-const fs = require('fs');     // Necesario para crear carpetas con Multer
+const fs = require('fs');     // Necesario para crear carpetas con Multer
 const multer = require('multer'); // Importa Multer
 
 // Importa las funciones del controlador de usuarios
 const {
     getUsers,
     getUserById,
+    getMe, // <--- ¡AÑADIDO: Importa la nueva función getMe!
     updateUserProfile,
     updateUserRole,
     deleteUser,
     updateUserAvatar, // Función de avatar
+    changePassword, // Asegúrate de importar changePassword si tu controlador lo exporta
     getUserActivity
 } = require('../controllers/userController');
 
@@ -38,34 +39,29 @@ if (!fs.existsSync(AVATARS_UPLOAD_DIR)) {
 } else {
 }
 
-const avatarStorage = multer.diskStorage({ // Cambiado de 'storage' a 'avatarStorage' para claridad
+const avatarStorage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, AVATARS_UPLOAD_DIR); // <--- ¡CORRECCIÓN CLAVE AQUÍ!
+        cb(null, AVATARS_UPLOAD_DIR);
     },
     filename: function (req, file, cb) {
-        // Define el nombre del archivo: userId-timestamp.extensión_original
-        // 'req.user._id' viene del middleware 'protect'
-        const userId = req.user ? req.user._id : 'unknown-user'; // Usar req.user._id si está disponible
+        const userId = req.user ? req.user._id : 'unknown-user';
         const fileExtension = path.extname(file.originalname);
         const fileName = `${userId}-${Date.now()}${fileExtension}`;
         cb(null, fileName);
     }
 });
 
-// Configuración principal de Multer para avatares
-const uploadAvatar = multer({ // Cambiado de 'upload' a 'uploadAvatar' para evitar conflictos si tienes otro 'upload'
+const uploadAvatar = multer({
     storage: avatarStorage,
     limits: { fileSize: 5 * 1024 * 1024 }, // Límite de tamaño de archivo (Aumentado a 5 MB)
     fileFilter: function (req, file, cb) {
-        // Filtrar tipos de archivo permitidos (solo imágenes)
         const filetypes = /jpeg|jpg|png|gif/;
         const mimetype = filetypes.test(file.mimetype);
         const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
 
         if (mimetype && extname) {
-            return cb(null, true); // Aceptar el archivo
+            return cb(null, true);
         } else {
-            // Rechazar el archivo y devolver un error personalizado
             cb(new Error('Solo se permiten archivos de imagen (JPEG, JPG, PNG, GIF) para avatares!'));
         }
     }
@@ -74,6 +70,11 @@ const uploadAvatar = multer({ // Cambiado de 'upload' a 'uploadAvatar' para evit
 // =====================================================================
 // Rutas de la API de Gestión de Usuarios
 // =====================================================================
+
+// @route   GET /api/users/me
+// @desc    Obtener el perfil del usuario logueado
+// @access  Private
+router.get('/me', protect, getMe); // <--- ¡AÑADIDO: Esta ruta debe ir ANTES de /:id!
 
 // @route   GET /api/users
 // @desc    Obtener todos los usuarios (solo administradores)
@@ -88,7 +89,6 @@ router.get('/:id', protect, getUserById);
 // @route   PUT /api/users/:id
 // @desc    Actualizar perfil de usuario (admin o el propio usuario)
 // @access  Private/Admin or User itself
-// NOTA: Esta ruta NO maneja la subida de la imagen de perfil ni el cambio de rol/contraseña directamente.
 router.put('/:id', protect, updateUserProfile);
 
 // @route   PUT /api/users/:id/role
@@ -104,8 +104,12 @@ router.delete('/:id', protect, authorizeRoles('admin'), deleteUser);
 // @route   PUT /api/users/:id/avatar
 // @desc    Subir o actualizar el avatar del usuario
 // @access  Private/User itself
-// 'avatar' es el nombre del campo en el FormData que contiene el archivo
-router.put('/:id/avatar', protect, uploadAvatar.single('avatar'), updateUserAvatar); // <--- Usar uploadAvatar
+router.put('/:id/avatar', protect, uploadAvatar.single('avatar'), updateUserAvatar);
+
+// @route   PUT /api/users/:id/password
+// @desc    Cambiar la contraseña del usuario
+// @access  Private/User itself
+router.put('/:id/password', protect, changePassword); // Asegúrate de que changePassword está importado
 
 // @route   GET /api/users/:id/activity
 // @desc    Obtener actividades de usuario (compras, carrito) (admin o el propio usuario)

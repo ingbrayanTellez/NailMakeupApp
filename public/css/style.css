@@ -71,7 +71,7 @@ h2 {
 
 /* Estilos del HEADER */
 .header {
-    background-color: #004d99; /* Fondo azul oscuro del header */
+    background-color:#EFBF04; /* Fondo azul oscuro del header */
     padding: 10px 20px;
     color: white; /* Color de texto general para el header */
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -563,13 +563,15 @@ form {
 }
 
 .my-account-content {
-    display: flex;
+    display: flex; /* Cambiado de grid a flex para la animación de apilamiento */
     flex-wrap: wrap;
     justify-content: center;
-    gap: 40px;
-    width: 100%;
+    gap: 0px; /* Gap entre elementos */
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
     max-width: 1200px;
-    margin: 0 auto 50px auto;
+    margin: 20px auto;
 }
 
 .user-info-card, .user-activities {
@@ -717,6 +719,7 @@ form {
 
 
 /* Formularios de edición de perfil y contraseña */
+/* REGLAS ORIGINALES DEL USUARIO */
 #edit-profile-form-container,
 #change-password-form-container {
     background-color: var(--bg-light);
@@ -728,12 +731,51 @@ form {
     display: none; /* Controlado por JS */
     flex-direction: column;
     gap: 20px;
+    /* Añadimos transiciones para una aparición suave */
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
 }
 
+/* REGLAS ORIGINALES DEL USUARIO */
 #edit-profile-form-container.active,
 #change-password-form-container.active {
     display: flex;
 }
+
+/* CLASE HIDDEN - ES CRUCIAL QUE ESTA REGLA TENGA !important */
+.hidden {
+    display: none !important; 
+}
+
+
+/* --- NUEVAS REGLAS PARA MOSTRAR LOS FORMULARIOS CORRECTAMENTE --- */
+/* Estas reglas sobrescriben el 'display: none' cuando el JS remueve la clase 'hidden'
+   y el contenedor padre tiene la clase 'show-edit-profile' o 'show-change-password'. */
+#my-account.show-edit-profile #edit-profile-form-container:not(.hidden) {
+    display: flex; /* Usamos 'flex' porque los contenedores ya tienen flex-direction: column */
+    opacity: 1;
+}
+
+#my-account.show-change-password #change-password-form-container:not(.hidden) {
+    display: flex; /* Usamos 'flex' */
+    opacity: 1;
+}
+
+/* --- REGLAS PARA OCULTAR/MOSTRAR BOTONES PRINCIPALES --- */
+/* Aseguramos que los botones principales estén visibles por defecto */
+#edit-profile-btn,
+#change-password-btn {
+    display: inline-block; /* O 'block' si prefieres que ocupen todo el ancho */
+}
+
+/* Ocultamos los botones principales cuando uno de los formularios de edición está visible */
+#my-account.show-edit-profile #edit-profile-btn,
+#my-account.show-edit-profile #change-password-btn,
+#my-account.show-change-password #edit-profile-btn,
+#my-account.show-change-password #change-password-btn {
+    display: none; /* Oculta los botones */
+}
+
 
 /* NUEVA SECCIÓN PARA LA ACTIVIDAD DEL ADMINISTRADOR */
 .admin-activity-section {
@@ -1576,4 +1618,3 @@ footer p {
     from { opacity: 0; transform: translateY(-20px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
