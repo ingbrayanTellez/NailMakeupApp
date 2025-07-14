@@ -1,101 +1,53 @@
 // backend/controllers/productController.js
-
-const Product = require('../models/Product'); // Asegúrate de que el modelo Product esté correctamente definido
-const asyncHandler = require('express-async-handler'); // Utilidad para manejar excepciones en funciones asíncronas
+const asyncHandler = require('express-async-handler');
+const Product = require('../models/Product'); // Asegúrate de que la ruta a tu modelo Product sea correcta
 const path = require('path');
 const fs = require('fs');
 
-// @desc    Obtener todos los productos con filtros y paginación
+// @desc    Get all products
 // @route   GET /api/products
 // @access  Public
 exports.getAllProducts = asyncHandler(async (req, res) => {
-    const { search, category, minPrice, maxPrice } = req.query;
-    // Aseguramos que page y limit sean números, con valores por defecto si no se proporcionan o son inválidos
+    const pageSize = parseInt(req.query.limit) || 6; // Por defecto 6 productos por página
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 6; // Importante: Debe coincidir con el 'limit' en main.js (actualmente 6)
-    const skip = (page - 1) * limit; // Calcula cuántos documentos saltar
+    const searchTerm = req.query.search ? req.query.search.toLowerCase() : '';
+    const categoryFilter = req.query.category || 'All';
+    const minPrice = parseFloat(req.query.minPrice) || 0;
+    const maxPrice = parseFloat(req.query.maxPrice) || Infinity;
 
-    let query = {}; // Objeto para construir la consulta de Mongoose
+    let query = {};
 
-    // 1. Filtro por búsqueda (nombre o descripción)
-    if (search) {
+    // Filtro por término de búsqueda (nombre o descripción)
+    if (searchTerm) {
         query.$or = [
-            { name: { $regex: search, $options: 'i' } },
-            { description: { $regex: search, $options: 'i' } }
+            { name: { $regex: searchTerm, $options: 'i' } },
+            { description: { $regex: searchTerm, $options: 'i' } }
         ];
     }
 
-    // 2. Filtro por categoría
-    if (category && category !== 'All') {
-        query.category = category; // Busca productos con la categoría exacta
+    // Filtro por categoría
+    if (categoryFilter !== 'All') {
+        query.category = categoryFilter;
     }
 
-    // 3. Filtro por rango de precios
-    if (minPrice || maxPrice) {
-        query.price = {}; // Inicializa el objeto para el rango de precios
-        if (minPrice) {
-            query.price.$gte = parseFloat(minPrice); // Precio mayor o igual que minPrice
-        }
-        if (maxPrice) {
-            query.price.$lte = parseFloat(maxPrice); // Precio menor o igual que maxPrice
-        }
-    }
+    // Filtro por rango de precio
+    query.price = { $gte: minPrice, $lte: maxPrice };
 
-    // Obtener el total de productos que coinciden con los filtros (sin aplicar paginación aún)
-    let totalProducts = await Product.countDocuments(query);
-    // === PEQUEÑA ADICIÓN AQUÍ PARA ASEGURAR TIPO NUMÉRICO ===
-    if (typeof totalProducts !== 'number') {
-        console.warn('productController: totalProducts no es un número. Convirtiendo a 0.');
-        totalProducts = 0; // Asegura que sea un número, incluso si es 0
-    }
-    // =======================================================
-    
-    // Calcula el número total de páginas. Aseguramos que limit sea al menos 1 para evitar división por cero.
-    const totalPages = Math.ceil(totalProducts / (limit > 0 ? limit : 1)); 
-
-    // Obtener los productos aplicando filtros Y paginación
+    const count = await Product.countDocuments(query);
     const products = await Product.find(query)
-                                  .skip(skip) // Salta documentos según la página
-                                  .limit(limit); // Limita el número de documentos por página
+        .limit(pageSize)
+        .skip(pageSize * (page - 1))
+        .sort({ createdAt: -1 }); // Ordenar por los más nuevos primero
 
-    // Envía la respuesta JSON con los productos y la metadata de paginación
-    res.json({
-        products,          // El array de productos para la página actual
-        page,              // La página actual (ya es un número)
-        totalPages,        // El total de páginas disponibles (ya es un número)
-        totalProducts      // El total de productos que coinciden con los filtros (ya es un número)
+    res.status(200).json({
+        products,
+        page,
+        pages: Math.ceil(count / pageSize),
+        totalProducts: count
     });
 });
 
-// @desc    Crear un nuevo producto
-// @route   POST /api/products
-// @access  Private (Solo administradores)
-exports.createProduct = asyncHandler(async (req, res) => {
-    const { name, description, price, category, stock } = req.body;
-
-    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
-
-    if (!name || !description || !price || !category || !stock) {
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
-        res.status(400);
-        throw new Error('Por favor, ingresa todos los campos requeridos: nombre, descripción, precio, categoría y stock.');
-    }
-
-    const product = await Product.create({
-        name,
-        description,
-        price,
-        category,
-        stock,
-        imageUrl
-    });
-
-    res.status(201).json({ message: 'Producto creado exitosamente', product });
-});
-
-// @desc    Obtener un producto por ID
+// @desc    Get single product by ID
 // @route   GET /api/products/:id
 // @access  Public
 exports.getProductById = asyncHandler(async (req, res) => {
@@ -106,68 +58,94 @@ exports.getProductById = asyncHandler(async (req, res) => {
         throw new Error('Producto no encontrado.');
     }
 
-    res.json(product);
+    res.status(200).json(product);
 });
 
-// @desc    Actualizar un producto
-// @route   PUT /api/products/:id
-// @access  Private (Solo administradores)
-exports.updateProduct = asyncHandler(async (req, res) => {
+// @desc    Create a new product
+// @route   POST /api/products
+// @access  Private/Admin
+exports.createProduct = asyncHandler(async (req, res) => {
     const { name, description, price, category, stock } = req.body;
-    let newImageUrl = '';
 
-    if (req.file) {
-        newImageUrl = `/uploads/${req.file.filename}`;
+    if (!name || !description || !price || !category || stock === undefined) {
+        res.status(400);
+        throw new Error('Por favor, completa todos los campos requeridos para el producto.');
     }
 
-    const product = await Product.findById(req.params.id);
+    // Si se subió una imagen, req.file contendrá la información del archivo
+    const imageUrl = req.file ? `/uploads/${req.file.filename}` : '/img/placeholder.png'; // Ruta relativa
+
+    const product = await Product.create({
+        name,
+        description,
+        price,
+        category,
+        stock,
+        imageUrl,
+        user: req.user._id // Asocia el producto al ID del usuario (admin) que lo creó
+    });
+
+    res.status(201).json({ message: 'Producto creado exitosamente.', product });
+});
+
+// @desc    Update a product
+// @route   PUT /api/products/:id
+// @access  Private/Admin
+exports.updateProduct = asyncHandler(async (req, res) => {
+    const { name, description, price, category, stock } = req.body;
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
 
     if (!product) {
-        if (req.file && fs.existsSync(req.file.path)) {
-            fs.unlinkSync(req.file.path);
-        }
         res.status(404);
         throw new Error('Producto no encontrado.');
     }
 
-    if (newImageUrl && product.imageUrl) {
-        const oldImagePath = path.join(__dirname, '../../public', product.imageUrl);
-        if (fs.existsSync(oldImagePath)) {
-            fs.unlinkSync(oldImagePath);
+    // Si hay un nuevo archivo de imagen, eliminar el antiguo si no es el placeholder
+    if (req.file) {
+        if (product.imageUrl && product.imageUrl !== '/img/placeholder.png') {
+            const oldImagePath = path.join(__dirname, '..', '..', 'public', product.imageUrl);
+            fs.unlink(oldImagePath, (err) => {
+                if (err) console.error('Error al eliminar imagen antigua:', err);
+            });
         }
+        product.imageUrl = `/uploads/${req.file.filename}`;
     }
 
     product.name = name || product.name;
     product.description = description || product.description;
-    product.price = price || product.price;
+    product.price = price !== undefined ? price : product.price;
     product.category = category || product.category;
-    product.stock = stock || product.stock;
-    product.imageUrl = newImageUrl || product.imageUrl;
+    product.stock = stock !== undefined ? stock : product.stock;
 
     const updatedProduct = await product.save();
 
-    res.json({ message: 'Producto actualizado exitosamente', product: updatedProduct });
+    res.status(200).json({ message: 'Producto actualizado exitosamente.', product: updatedProduct });
 });
 
-// @desc    Eliminar un producto
+// @desc    Delete a product
 // @route   DELETE /api/products/:id
-// @access  Private (Solo administradores)
+// @access  Private/Admin
 exports.deleteProduct = asyncHandler(async (req, res) => {
-    const product = await Product.findById(req.params.id);
+    const { id } = req.params;
+
+    const product = await Product.findById(id);
 
     if (!product) {
         res.status(404);
         throw new Error('Producto no encontrado.');
     }
 
-    if (product.imageUrl) {
-        const imagePath = path.join(__dirname, '../../public', product.imageUrl);
-        if (fs.existsSync(imagePath)) {
-            fs.unlinkSync(imagePath);
-        }
+    // Eliminar la imagen del producto si no es el placeholder
+    if (product.imageUrl && product.imageUrl !== '/img/placeholder.png') {
+        const imagePath = path.join(__dirname, '..', '..', 'public', product.imageUrl);
+        fs.unlink(imagePath, (err) => {
+            if (err) console.error('Error al eliminar imagen del producto:', err);
+        });
     }
 
-    await Product.deleteOne({ _id: req.params.id });
+    await product.deleteOne();
 
-    res.json({ message: 'Producto eliminado exitosamente.' });
+    res.status(200).json({ message: 'Producto eliminado exitosamente.' });
 });

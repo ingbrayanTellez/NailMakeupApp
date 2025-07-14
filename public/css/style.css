@@ -563,15 +563,13 @@ form {
 }
 
 .my-account-content {
-    display: flex; /* Cambiado de grid a flex para la animación de apilamiento */
+    display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0px; /* Gap entre elementos */
-    padding: 20px;
-    position: relative;
-    overflow: hidden;
+    gap: 40px;
+    width: 100%;
     max-width: 1200px;
-    margin: 20px auto;
+    margin: 0 auto 50px auto;
 }
 
 .user-info-card, .user-activities {
@@ -719,7 +717,6 @@ form {
 
 
 /* Formularios de edición de perfil y contraseña */
-/* REGLAS ORIGINALES DEL USUARIO */
 #edit-profile-form-container,
 #change-password-form-container {
     background-color: var(--bg-light);
@@ -731,174 +728,321 @@ form {
     display: none; /* Controlado por JS */
     flex-direction: column;
     gap: 20px;
-    /* Añadimos transiciones para una aparición suave */
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
 }
 
-/* REGLAS ORIGINALES DEL USUARIO */
 #edit-profile-form-container.active,
 #change-password-form-container.active {
     display: flex;
 }
 
-/* CLASE HIDDEN - ES CRUCIAL QUE ESTA REGLA TENGA !important */
-.hidden {
-    display: none !important; 
+/* --- NUEVOS ESTILOS PARA EL PANEL DE ADMINISTRACIÓN --- */
+#admin-dashboard {
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
-
-/* --- NUEVAS REGLAS PARA MOSTRAR LOS FORMULARIOS CORRECTAMENTE --- */
-/* Estas reglas sobrescriben el 'display: none' cuando el JS remueve la clase 'hidden'
-   y el contenedor padre tiene la clase 'show-edit-profile' o 'show-change-password'. */
-#my-account.show-edit-profile #edit-profile-form-container:not(.hidden) {
-    display: flex; /* Usamos 'flex' porque los contenedores ya tienen flex-direction: column */
-    opacity: 1;
-}
-
-#my-account.show-change-password #change-password-form-container:not(.hidden) {
-    display: flex; /* Usamos 'flex' */
-    opacity: 1;
-}
-
-/* --- REGLAS PARA OCULTAR/MOSTRAR BOTONES PRINCIPALES --- */
-/* Aseguramos que los botones principales estén visibles por defecto */
-#edit-profile-btn,
-#change-password-btn {
-    display: inline-block; /* O 'block' si prefieres que ocupen todo el ancho */
-}
-
-/* Ocultamos los botones principales cuando uno de los formularios de edición está visible */
-#my-account.show-edit-profile #edit-profile-btn,
-#my-account.show-edit-profile #change-password-btn,
-#my-account.show-change-password #edit-profile-btn,
-#my-account.show-change-password #change-password-btn {
-    display: none; /* Oculta los botones */
-}
-
-
-/* NUEVA SECCIÓN PARA LA ACTIVIDAD DEL ADMINISTRADOR */
-.admin-activity-section {
-    background-color: #f8f9fa; /* Un color ligeramente diferente para la sección admin */
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    padding: 30px;
-    border-radius: 15px; /* Consistente con otras tarjetas */
-    width: 100%;
-    max-width: 900px; /* Mayor ancho para el panel de admin */
-    margin: 20px auto; /* Centrar y añadir margen */
-}
-
-.admin-activity-section h3 {
+#admin-dashboard h2 {
     text-align: center;
-    font-size: 2em;
     color: var(--primary-color);
-    margin-bottom: 25px;
-    border-bottom: 2px solid var(--accent-color);
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
+}
+
+/* Estilos para las pestañas del admin */
+.admin-tabs {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--border-color);
     padding-bottom: 10px;
 }
 
-.admin-activity-panels {
-    display: grid;
-    grid-template-columns: 1fr; /* Una columna por defecto */
-    gap: 30px; /* Espacio entre los paneles */
+.admin-tabs .tab-button {
+    background-color: var(--bg-subtle);
+    color: var(--text-dark);
+    padding: 12px 20px;
+    border: 1px solid var(--border-color);
+    border-bottom: none; /* Para que la línea de abajo se vea continua */
+    border-radius: 8px 8px 0 0;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: all 0.3s ease;
 }
 
-.admin-orders-panel,
-.admin-carts-panel {
+.admin-tabs .tab-button:hover {
+    background-color: #e0e0e0;
+    color: var(--primary-color);
+}
+
+.admin-tabs .tab-button.active {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    border-color: var(--primary-color);
+    transform: translateY(2px); /* Efecto de "levantar" la pestaña activa */
+    box-shadow: 0 -3px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Contenedor del contenido de las pestañas */
+#admin-tab-content {
     background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: var(--box-shadow-small);
+    padding: 30px;
+    border-radius: 0 0 8px 8px; /* Redondeado solo abajo */
+    box-shadow: var(--box-shadow-medium);
     border: 1px solid var(--border-color);
+    border-top: none; /* Para que se una visualmente con las pestañas */
 }
 
-.admin-orders-panel h4,
-.admin-carts-panel h4 {
-    color: var(--secondary-color);
-    margin-bottom: 20px;
-    font-size: 1.5em;
+.admin-tab-pane {
+    display: none; /* Oculto por defecto, JS lo muestra */
+}
+
+.admin-tab-pane.active {
+    display: block;
+}
+
+.admin-tab-pane h3 {
     text-align: center;
+    color: var(--secondary-color);
+    margin-bottom: 30px;
+    font-size: 1.8em;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--accent-color);
 }
 
-#admin-orders-container,
-#admin-carts-container {
-    max-height: 500px; /* Altura máxima para contenedores con scroll */
-    overflow-y: auto;
-    padding-right: 10px; /* Para evitar que el scrollbar se superponga al contenido */
-}
-
-.admin-order-card,
-.admin-cart-item-card {
-    background-color: var(--bg-light);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+/* Filtros generales para tablas de admin (usuarios, pedidos) */
+.user-management-filters, .order-management-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 30px;
     padding: 15px;
-    margin-bottom: 15px;
+    background-color: var(--bg-subtle);
+    border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.admin-order-card h4,
-.admin-cart-item-card h4 {
-    color: var(--text-dark);
-    margin-top: 0;
-    margin-bottom: 10px;
-    font-size: 1.1em;
-}
-
-.admin-order-card p,
-.admin-cart-item-card p {
-    font-size: 0.9em;
-    margin-bottom: 5px;
-    color: #666; /* Un gris un poco más suave */
-}
-
-.admin-order-products-list,
-.admin-cart-products-list {
-    list-style: disc;
-    padding-left: 20px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-}
-
-.admin-order-products-list li,
-.admin-cart-products-list li {
-    font-size: 0.85em;
-    color: var(--text-dark);
-    margin-bottom: 3px;
-}
-
-.order-admin-actions {
-    margin-top: 15px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-}
-
-.order-admin-actions label {
-    font-weight: bold;
-    color: var(--text-dark);
-    margin-right: 5px;
-}
-
-.order-admin-actions select {
-    padding: 8px;
+.user-management-filters input[type="text"],
+.user-management-filters select,
+.user-management-filters button,
+.order-management-filters input[type="text"],
+.order-management-filters select,
+.order-management-filters button {
+    padding: 10px 15px;
     border: 1px solid var(--border-color);
     border-radius: 5px;
-    flex-grow: 1;
-    max-width: 150px;
+    font-size: 1em;
+    flex: 1;
+    min-width: 150px;
 }
 
-.order-admin-actions .btn-small {
-    padding: 8px 15px;
-    font-size: 0.85em;
-    min-width: 80px;
+.user-management-filters button,
+.order-management-filters button {
+    flex-shrink: 0;
 }
 
-.clear-user-cart-btn {
-    margin-top: 10px;
-    padding: 8px 15px;
+/* Estilos para tablas de admin (usuarios, pedidos, categorías, descuentos) */
+.user-table-container, .order-table-container, .category-table-container, .discount-table-container {
+    overflow-x: auto;
+    margin-top: 20px;
+    background-color: var(--bg-light);
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.user-table, .order-table, .category-table, .discount-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    min-width: 700px; /* Ancho mínimo para tablas grandes */
+}
+
+.user-table th, .user-table td,
+.order-table th, .order-table td,
+.category-table th, .category-table td,
+.discount-table th, .discount-table td {
+    border: 1px solid var(--border-color);
+    padding: 12px 15px;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.user-table th, .order-table th, .category-table th, .discount-table th {
+    background-color: var(--primary-color);
+    color: var(--text-light);
+    font-weight: bold;
+    text-transform: uppercase;
     font-size: 0.9em;
+}
+
+.user-table tr:nth-child(even),
+.order-table tr:nth-child(even),
+.category-table tr:nth-child(even),
+.discount-table tr:nth-child(even) {
+    background-color: var(--bg-subtle);
+}
+
+.user-table tr:hover,
+.order-table tr:hover,
+.category-table tr:hover,
+.discount-table tr:hover {
+    background-color: #f0f0f0;
+}
+
+.user-table .user-actions,
+.order-table .order-actions,
+.category-table .category-actions,
+.discount-table .discount-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.user-table .user-actions select,
+.user-table .user-actions button,
+.order-table .order-actions select,
+.order-table .order-actions button,
+.category-table .category-actions button,
+.discount-table .discount-actions button {
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 0.85em;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.user-table .user-actions select,
+.order-table .order-actions select {
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    color: var(--text-dark);
+    flex-grow: 1;
+}
+
+.user-table .user-actions button.save-role-btn,
+.order-table .order-actions button.update-status-btn,
+.category-table .category-actions button.edit-category-btn,
+.discount-table .discount-actions button.edit-discount-btn {
+    background-color: var(--success-color);
+    color: white;
+}
+
+.user-table .user-actions button.save-role-btn:hover,
+.order-table .order-actions button.update-status-btn:hover,
+.category-table .category-actions button.edit-category-btn:hover,
+.discount-table .discount-actions button.edit-discount-btn:hover {
+    background-color: #a79717; /* Ajuste para tu color dorado */
+}
+
+.user-table .user-actions button.delete-user-btn,
+.category-table .category-actions button.delete-category-btn,
+.discount-table .discount-actions button.delete-discount-btn {
+    background-color: var(--error-color);
+    color: white;
+}
+
+.user-table .user-actions button.delete-user-btn:hover,
+.category-table .category-actions button.delete-category-btn:hover,
+.discount-table .discount-actions button.delete-discount-btn:hover {
+    background-color: #c20f4c;
+}
+
+.user-table .user-actions button.toggle-active-btn { /* Nuevo para bloquear/desbloquear */
+    background-color: var(--info-color);
+    color: white;
+}
+.user-table .user-actions button.toggle-active-btn:hover {
+    background-color: #117a8b;
+}
+
+
+#no-users-message {
+    text-align: center;
+    font-size: 1.2em;
+    color: #777;
+    margin-top: 50px;
+    width: 100%;
+}
+
+/* Estilos para el formulario de categorías */
+.category-form-container, .discount-form-container {
+    background-color: var(--bg-light);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow-small);
+    margin-bottom: 30px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.category-form-container .form-group, .discount-form-container .form-group {
+    margin-bottom: 15px;
+}
+
+.category-form-container .btn, .discount-form-container .btn {
+    width: auto;
+    margin-right: 10px;
+}
+
+/* Estilos para Estadísticas */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.stat-card {
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card h4 {
+    color: var(--secondary-color);
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.stat-card p {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 0;
+}
+
+.stat-card ul {
+    list-style: none;
+    padding: 0;
+    text-align: left;
+}
+
+.stat-card ul li {
+    font-size: 1em;
+    color: var(--text-dark);
+    padding: 5px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.stat-card ul li:last-child {
+    border-bottom: none;
 }
 
 
@@ -1091,47 +1235,7 @@ form {
     margin-right: 0; /* Asegura que el botón cancelar no tenga margen a la derecha */
 }
 
-/* Panel de Administración de Usuarios */
-#admin-dashboard {
-    padding-top: 20px;
-    padding-bottom: 20px;
-}
-
-#admin-dashboard h2 {
-    text-align: center;
-    color: var(--primary-color);
-    margin-bottom: 30px;
-    font-size: 2.5em;
-    font-weight: 700;
-}
-
-.user-management-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    justify-content: center;
-    margin-bottom: 30px;
-    padding: 15px;
-    background-color: var(--bg-subtle);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-}
-
-.user-management-filters input[type="text"],
-.user-management-filters select,
-.user-management-filters button {
-    padding: 10px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    font-size: 1em;
-    flex: 1;
-    min-width: 150px;
-}
-
-.user-management-filters button {
-    flex-shrink: 0;
-}
-
+/* Panel de Administración de Usuarios (EXISTENTE) */
 .user-table-container {
     overflow-x: auto;
     margin-top: 20px;
@@ -1265,10 +1369,11 @@ footer p {
     }
 
     /* Layout para paneles de admin en desktop */
-    .admin-activity-panels {
-        grid-template-columns: 1fr 1fr; /* Dos columnas para carritos y órdenes */
-        display: grid;
-        gap: 30px;
+    #admin-tab-content {
+        padding: 40px; /* Más padding en desktop */
+    }
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* 3 columnas o más si el espacio lo permite */
     }
 }
 
@@ -1325,14 +1430,15 @@ footer p {
         margin-bottom: 25px;
     }
 
-    .filters, .user-management-filters {
+    .filters, .user-management-filters, .order-management-filters {
         flex-direction: column;
         padding: 15px;
         gap: 10px;
     }
 
     .filters input, .filters select, .filters button,
-    .user-management-filters input, .user-management-filters select, .user-management-filters button {
+    .user-management-filters input, .user-management-filters select, .user-management-filters button,
+    .order-management-filters input, .order-management-filters select, .order-management-filters button {
         width: 100%;
         min-width: unset;
     }
@@ -1373,18 +1479,28 @@ footer p {
         width: 100%;
     }
 
-    .user-table {
+    .user-table, .order-table, .category-table, .discount-table {
         min-width: 100%;
     }
-    .user-table th, .user-table td {
+    .user-table th, .user-table td,
+    .order-table th, .order-table td,
+    .category-table th, .category-table td,
+    .discount-table th, .discount-table td {
         padding: 8px 10px;
         font-size: 0.8em;
     }
-    .user-table .user-actions {
+    .user-table .user-actions,
+    .order-table .order-actions,
+    .category-table .category-actions,
+    .discount-table .discount-actions {
         flex-direction: column;
     }
     .user-table .user-actions select,
-    .user-table .user-actions button {
+    .user-table .user-actions button,
+    .order-table .order-actions select,
+    .order-table .order-actions button,
+    .category-table .category-actions button,
+    .discount-table .discount-actions button {
         width: 100%;
     }
 
@@ -1463,9 +1579,24 @@ footer p {
         margin-bottom: 10px;
     }
 
-    /* Responsive adjustments for Admin Activity Panels */
-    .admin-activity-panels {
-        grid-template-columns: 1fr; /* Volver a una columna en pantallas pequeñas */
+    /* Responsive adjustments for Admin Dashboard tabs */
+    .admin-tabs {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-tabs .tab-button {
+        border-radius: 8px;
+        border-bottom: 1px solid var(--border-color); /* Restaurar borde inferior */
+    }
+    .admin-tabs .tab-button.active {
+        transform: translateY(0); /* Quitar efecto de levantamiento en móvil */
+    }
+    .admin-tab-content {
+        border-radius: 8px; /* Redondear todo el contenedor en móvil */
+        border-top: 1px solid var(--border-color); /* Restaurar borde superior */
+    }
+    .stats-grid {
+        grid-template-columns: 1fr; /* Una columna en pantallas muy pequeñas */
     }
 }
 

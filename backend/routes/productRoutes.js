@@ -8,6 +8,9 @@ const fs = require('fs');
 // Importa el controlador de productos
 const productController = require('../controllers/productController');
 
+// Importa el controlador de categorías para la ruta pública
+const { getAllCategories } = require('../controllers/categoryController'); // <--- ¡NUEVO: Importa getAllCategories!
+
 // Importa el middleware de autenticación y autorización
 const { protect, authorizeRoles } = require('../middleware/authMiddleware');
 
@@ -34,8 +37,6 @@ const storage = multer.diskStorage({
         cb(null, uploadPath);
     },
     filename: function (req, file, cb) {
-        // *** ¡¡¡ESTA ES LA LÍNEA CRÍTICA CORREGIDA!!! ***
-        // Asegúrate de que no haya ninguna etiqueta HTML (como <span>) o caracteres inválidos aquí.
         // Genera un nombre de archivo único utilizando la marca de tiempo actual y el nombre original del archivo.
         // Esto previene colisiones y mantiene la extensión original.
         cb(null, `${Date.now()}-${file.originalname}`);
@@ -92,5 +93,12 @@ router.put('/:id', protect, authorizeRoles('admin'), upload.single('imageUrl'), 
 // Aplica los middlewares de protección y autorización.
 router.delete('/:id', protect, authorizeRoles('admin'), productController.deleteProduct);
 
+// =====================================================================
+// RUTA PÚBLICA PARA OBTENER TODAS LAS CATEGORÍAS
+// =====================================================================
+// @route   GET /api/categories
+// @desc    Obtener todas las categorías de productos
+// @access  Public
+router.get('/categories', getAllCategories); // <--- ¡NUEVA RUTA AÑADIDA!
 
 module.exports = router;

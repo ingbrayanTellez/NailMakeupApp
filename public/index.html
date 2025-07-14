@@ -309,41 +309,207 @@
         </section>
 
         <section id="admin-dashboard" class="container hidden-section">
-            <h2>Panel de Administración de Usuarios</h2>
+            <h2>Panel de Administración</h2>
             <div id="admin-message-container" class="message-container"></div>
 
-            <div class="user-management-filters">
-                <input type="text" id="userSearchInput" placeholder="Buscar por nombre o email..."/>
-                <select id="userRoleFilter">
-                    <option value="">Todos los Roles</option>
-                    <option value="admin">Administrador</option>
-                    <option value="user">Usuario</option>
-                    </select>
-                <button class="btn" id="applyUserFiltersBtn">Aplicar Filtros</button>
-                <button class="btn btn-secondary" id="clearUserFiltersBtn">Limpiar Filtros</button>
+            <div class="admin-tabs">
+                <button class="tab-button active" data-tab="users">Gestión de Usuarios</button>
+                <button class="tab-button" data-tab="orders">Gestión de Pedidos</button>
+                <button class="tab-button" data-tab="categories">Gestión de Categorías</button>
+                <button class="tab-button" data-tab="discounts">Gestión de Descuentos</button>
+                <button class="tab-button" data-tab="stats">Estadísticas</button>
             </div>
 
-            <div class="user-table-container">
-                <table class="user-table">
-                    <thead>
-                        <tr>
-                            <th>ID de Usuario</th>
-                            <th>Nombre de Usuario</th>
-                            <th>Email</th>
-                            <th>Rol</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="userTableBody">
-                        <tr><td colspan="5" id="no-users-message">Cargando usuarios...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <div id="admin-tab-content">
+                <!-- Tab: Gestión de Usuarios (EXISTENTE) -->
+                <div id="admin-tab-users" class="admin-tab-pane active">
+                    <h3>Usuarios del Sistema</h3>
+                    <div class="user-management-filters">
+                        <input type="text" id="userSearchInput" placeholder="Buscar por nombre o email..."/>
+                        <select id="userRoleFilter">
+                            <option value="">Todos los Roles</option>
+                            <option value="admin">Administrador</option>
+                            <option value="user">Usuario</option>
+                        </select>
+                        <button class="btn" id="applyUserFiltersBtn">Aplicar Filtros</button>
+                        <button class="btn btn-secondary" id="clearUserFiltersBtn">Limpiar Filtros</button>
+                    </div>
 
-            <div class="pagination" id="admin-user-pagination">
-                <button id="admin-prev-page-btn" class="btn" disabled>Anterior</button>
-                <span id="admin-page-info">Página 1 de 1</span>
-                <button id="admin-next-page-btn" class="btn" disabled>Siguiente</button>
+                    <div class="user-table-container">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>ID de Usuario</th>
+                                    <th>Nombre de Usuario</th>
+                                    <th>Email</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th> <!-- Nuevo campo para estado activo/bloqueado -->
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <tr><td colspan="6" id="no-users-message">Cargando usuarios...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="pagination" id="admin-user-pagination">
+                        <button id="admin-prev-page-btn" class="btn" disabled>Anterior</button>
+                        <span id="admin-page-info">Página 1 de 1</span>
+                        <button id="admin-next-page-btn" class="btn" disabled>Siguiente</button>
+                    </div>
+                </div>
+
+                <!-- Tab: Gestión de Pedidos (NUEVA) -->
+                <div id="admin-tab-orders" class="admin-tab-pane hidden">
+                    <h3>Gestión de Pedidos</h3>
+                    <div class="order-management-filters">
+                        <input type="text" id="orderSearchInput" placeholder="Buscar por ID de pedido o usuario..."/>
+                        <select id="orderStatusFilter">
+                            <option value="">Todos los Estados</option>
+                            <option value="pending">Pendiente</option>
+                            <option value="shipped">Enviado</option>
+                            <option value="delivered">Entregado</option>
+                            <option value="cancelled">Cancelado</option>
+                        </select>
+                        <button class="btn" id="applyOrderFiltersBtn">Aplicar Filtros</button>
+                        <button class="btn btn-secondary" id="clearOrderFiltersBtn">Limpiar Filtros</button>
+                    </div>
+                    <div class="order-table-container">
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>ID Pedido</th>
+                                    <th>Usuario</th>
+                                    <th>Total</th>
+                                    <th>Estado</th>
+                                    <th>Fecha</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orderTableBody">
+                                <tr><td colspan="6">Cargando pedidos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination" id="admin-order-pagination">
+                        <button id="admin-order-prev-page-btn" class="btn" disabled>Anterior</button>
+                        <span id="admin-order-page-info">Página 1 de 1</span>
+                        <button id="admin-order-next-page-btn" class="btn" disabled>Siguiente</button>
+                    </div>
+                </div>
+
+                <!-- Tab: Gestión de Categorías (NUEVA) -->
+                <div id="admin-tab-categories" class="admin-tab-pane hidden">
+                    <h3>Gestión de Categorías</h3>
+                    <div class="category-form-container">
+                        <form id="category-form">
+                            <input type="hidden" id="categoryId" />
+                            <div class="form-group">
+                                <label for="categoryName">Nombre de la Categoría:</label>
+                                <input type="text" id="categoryName" required />
+                                <span class="validation-error" id="categoryName-error"></span>
+                            </div>
+                            <button type="submit" class="btn" id="saveCategoryBtn">Guardar Categoría</button>
+                            <button type="button" class="btn btn-secondary" id="cancelCategoryEditBtn" style="display:none;">Cancelar Edición</button>
+                        </form>
+                    </div>
+                    <div class="category-table-container">
+                        <table class="category-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="categoryTableBody">
+                                <tr><td colspan="3">Cargando categorías...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Gestión de Descuentos (NUEVA) -->
+                <div id="admin-tab-discounts" class="admin-tab-pane hidden">
+                    <h3>Gestión de Descuentos</h3>
+                    <div class="discount-form-container">
+                        <form id="discount-form">
+                            <input type="hidden" id="discountId" />
+                            <div class="form-group">
+                                <label for="discountCode">Código de Descuento:</label>
+                                <input type="text" id="discountCode" required />
+                                <span class="validation-error" id="discountCode-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="discountType">Tipo de Descuento:</label>
+                                <select id="discountType" required>
+                                    <option value="percentage">Porcentaje</option>
+                                    <option value="fixed">Monto Fijo</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="discountValue">Valor:</label>
+                                <input type="number" id="discountValue" step="0.01" required />
+                                <span class="validation-error" id="discountValue-error"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="discountMinOrder">Pedido Mínimo (opcional):</label>
+                                <input type="number" id="discountMinOrder" step="0.01" />
+                            </div>
+                            <div class="form-group">
+                                <label for="discountExpiry">Fecha de Caducidad (opcional):</label>
+                                <input type="date" id="discountExpiry" />
+                            </div>
+                            <div class="form-group">
+                                <label for="discountMaxUses">Usos Máximos (opcional):</label>
+                                <input type="number" id="discountMaxUses" />
+                            </div>
+                            <button type="submit" class="btn" id="saveDiscountBtn">Guardar Descuento</button>
+                            <button type="button" class="btn btn-secondary" id="cancelDiscountEditBtn" style="display:none;">Cancelar Edición</button>
+                        </form>
+                    </div>
+                    <div class="discount-table-container">
+                        <table class="discount-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Tipo</th>
+                                    <th>Valor</th>
+                                    <th>Mín. Pedido</th>
+                                    <th>Caducidad</th>
+                                    <th>Usos Máx.</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="discountTableBody">
+                                <tr><td colspan="7">Cargando descuentos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab: Estadísticas (NUEVA) -->
+                <div id="admin-tab-stats" class="admin-tab-pane hidden">
+                    <h3>Estadísticas y Reportes</h3>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <h4>Ventas Totales</h4>
+                            <p id="totalSales">$0.00</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Productos Más Vendidos</h4>
+                            <ul id="topProductsList">
+                                <li>Cargando...</li>
+                            </ul>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Usuarios Activos</h4>
+                            <p id="activeUsersCount">0</p>
+                        </div>
+                        <!-- Puedes añadir más estadísticas aquí -->
+                    </div>
+                </div>
             </div>
         </section>
 

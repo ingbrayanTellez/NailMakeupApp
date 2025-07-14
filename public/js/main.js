@@ -616,7 +616,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             targetSection = loginSection;
             window.showMessage('Por favor, inicia sesión para ver tu carrito o proceder al pago.', 'warning');
         } 
-
+        // If targetSection is still null after checks, default to homeSection
         if (!targetSection) {
             targetSection = homeSection; 
         }

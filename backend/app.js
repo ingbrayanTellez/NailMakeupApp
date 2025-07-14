@@ -60,18 +60,22 @@ connectDB(); // Llama a la función para conectar a la DB
 // IMPORTACIÓN Y DEFINICIÓN DE RUTAS API
 // Las rutas de backend están en la carpeta 'backend/routes'
 // Si app.js está en 'backend/', las rutas relativas a 'routes' son directas
-// =======================================================
+// =====================================================================
 const productRoutes = require('./routes/productRoutes'); 
 const authRoutes = require('./routes/authRoutes');     
 const userRoutes = require('./routes/userRoutes');     
 const cartRoutes = require('./routes/cartRoutes');     
 const orderRoutes = require('./routes/orderRoutes');   
+const adminRoutes = require('./routes/adminRoutes'); 
+const categoryRoutes = require('./routes/categoryRoutes'); // ¡NUEVO: Importa las rutas de categorías!
 
 app.use('/api/products', productRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/admin', adminRoutes); 
+app.use('/api/categories', categoryRoutes); // ¡NUEVO: Usa las rutas de categorías aquí!
 
 
 // =======================================================
@@ -91,15 +95,17 @@ app.get('/', (req, res) => {
 // MANEJADORES DE ERRORES (COLOCAR AL FINAL)
 // =======================================================
 
-// Middleware para manejar rutas no encontradas (404)
+// Middleware para manejar rutas no encontradas (404) - ¡AHORA ENVÍA JSON!
 app.use((req, res, next) => {
-    res.status(404).send('Lo siento, no se pudo encontrar esa página.');
+    const error = new Error(`Ruta no encontrada: ${req.originalUrl}`);
+    error.status = 404; 
+    next(error); 
 });
 
-// Middleware de manejo de errores global
+// Middleware de manejo de errores global - ¡AHORA SIEMPRE ENVÍA JSON!
 app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(err.statusCode || 500).json({
+    console.error(err.stack); 
+    res.status(err.status || 500).json({ 
         message: err.message || 'Error interno del servidor',
         stack: process.env.NODE_ENV === 'production' ? null : err.stack
     });

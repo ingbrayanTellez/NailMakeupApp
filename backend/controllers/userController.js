@@ -1,8 +1,9 @@
-const asyncHandler = require('express-async-handler');
-const User = require('../models/User'); // Asegúrate de que la ruta al modelo es correcta
-const bcrypt = require('bcryptjs'); 
-const path = require('path');
-const fs = require('fs');
+// backend/controllers/userController.js
+const asyncHandler = require('express-async-handler'); // Para manejar errores asíncronos sin bloques try-catch repetitivos
+const User = require('../models/User'); // Asegúrate de que la ruta a tu modelo User sea correcta
+const bcrypt = require('bcryptjs'); // Para encriptar contraseñas
+const path = require('path'); // Para manejar rutas de archivos
+const fs = require('fs');     // Para manejar el sistema de archivos (ej. eliminar avatares antiguos)
 
 // @desc    Get all users (for admin panel)
 // @route   GET /api/users
@@ -29,34 +30,26 @@ exports.getUsers = asyncHandler(async (req, res) => {
     // Aplicar búsqueda por username o email si se proporciona un término de búsqueda
     if (searchTerm) {
         query.$or = [
-            { username: { $regex: searchTerm, $options: 'i' } }, // 'i' para case-insensitive
+            { username: { $regex: searchTerm, $options: 'i' } }, // Búsqueda insensible a mayúsculas/minúsculas
             { email: { $regex: searchTerm, $options: 'i' } }
         ];
     }
 
-    try {
-        const count = await User.countDocuments(query); // Contar el total de usuarios que coinciden con el filtro
-        const users = await User.find(query)
-            .select('-password') // Excluir contraseñas
-            .limit(pageSize)      // Limitar el número de resultados
-            .skip(pageSize * (page - 1)); // Saltar los resultados de páginas anteriores
+    const count = await User.countDocuments(query);
+    const users = await User.find(query)
+        .select('-password') // Excluir la contraseña
+        .limit(pageSize)
+        .skip(pageSize * (page - 1));
 
-        res.status(200).json({
-            users: users,
-            page: page,
-            pages: Math.ceil(count / pageSize), // Total de páginas
-            totalUsers: count,
-            currentPage: page, // Coincide con el nombre esperado en el frontend
-            totalPages: Math.ceil(count / pageSize) // Coincide con el nombre esperado en el frontend
-        });
-
-    } catch (error) {
-        console.error('Error fetching users for admin:', error);
-        res.status(500).json({ message: 'Error del servidor al obtener usuarios.' });
-    }
+    res.status(200).json({
+        users,
+        page,
+        pages: Math.ceil(count / pageSize),
+        totalUsers: count
+    });
 });
 
-// @desc    Get a single user by ID
+// @desc    Get user by ID (for admin or user itself)
 // @route   GET /api/users/:id
 // @access  Private/Admin or User itself
 exports.getUserById = asyncHandler(async (req, res) => {
@@ -64,314 +57,270 @@ exports.getUserById = asyncHandler(async (req, res) => {
 
     if (!user) {
         res.status(404);
-        throw new Error('Usuario no encontrado');
+        throw new Error('Usuario no encontrado.');
     }
 
     // Permitir acceso si es el propio usuario o un administrador
-    if (req.user._id.toString() === user._id.toString() || req.user.role === 'admin') {
-        res.status(200).json(user);
-    } else {
+    if (req.user._id.toString() !== user._id.toString() && req.user.role !== 'admin') {
         res.status(403);
-        throw new Error('No autorizado para ver este perfil de usuario');
-    }
-});
-
-// @desc    Get logged in user profile
-// @route   GET /api/users/me
-// @access  Private
-exports.getMe = asyncHandler(async (req, res) => {
-    // req.user viene del middleware 'protect' y contiene la información del usuario autenticado
-    console.log('DEBUG: getMe - req.user:', req.user); // Log para depuración
-
-    if (!req.user || !req.user._id) {
-        res.status(401);
-        throw new Error('No autorizado. Usuario no autenticado.');
-    }
-
-    // Busca al usuario usando el ID del token (req.user._id)
-    const user = await User.findById(req.user._id).select('-password');
-
-    if (!user) {
-        res.status(404);
-        throw new Error('Usuario no encontrado en la base de datos.');
+        throw new Error('No autorizado para ver este perfil.');
     }
 
     res.status(200).json(user);
 });
 
+// @desc    Get current user profile
+// @route   GET /api/users/me
+// @access  Private
+exports.getMe = asyncHandler(async (req, res) => {
+    // req.user viene del middleware 'protect'
+    const user = await User.findById(req.user._id).select('-password'); // No enviar la contraseña
 
-// @desc    Update user profile (self or by admin)
+    if (user) {
+        res.status(200).json({
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            avatarUrl: user.avatarUrl, // Asegúrate de que tu modelo User tenga un campo avatarUrl
+            isActive: user.isActive,
+            createdAt: user.createdAt,
+            updatedAt: user.updatedAt
+        });
+    } else {
+        res.status(404);
+        throw new Error('Usuario no encontrado.');
+    }
+});
+
+// @desc    Update user profile
 // @route   PUT /api/users/:id
 // @access  Private/Admin or User itself
 exports.updateUserProfile = asyncHandler(async (req, res) => {
-    const userToUpdate = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id);
 
-    if (!userToUpdate) {
+    if (!user) {
         res.status(404);
-        throw new Error('Usuario no encontrado');
+        throw new Error('Usuario no encontrado.');
     }
 
-    // Asegurarse de que el usuario que intenta actualizar sea el propio usuario
-    // O que el usuario que intenta actualizar sea un administrador
-    if (req.user._id.toString() !== userToUpdate._id.toString() && req.user.role !== 'admin') {
+    // Permitir actualización si es el propio usuario o un administrador
+    if (req.user._id.toString() !== user._id.toString() && req.user.role !== 'admin') {
         res.status(403);
-        throw new Error('No autorizado para actualizar este perfil');
+        throw new Error('No autorizado para actualizar este perfil.');
     }
 
-    // Campos que se pueden actualizar.
-    const { username, email } = req.body;
+    user.username = req.body.username || user.username;
+    user.email = req.body.email || user.email;
 
-    // Actualizar campos si se proporcionan
-    if (username !== undefined) {
-        userToUpdate.username = username;
-    }
-    if (email !== undefined) {
-        userToUpdate.email = email;
+    // Solo un admin puede cambiar el rol a través de esta ruta (aunque hay una ruta específica para ello)
+    if (req.user.role === 'admin' && req.body.role) {
+        user.role = req.body.role;
     }
 
-    const updatedUser = await userToUpdate.save();
+    const updatedUser = await user.save();
 
     res.status(200).json({
         _id: updatedUser._id,
         username: updatedUser.username,
         email: updatedUser.email,
         role: updatedUser.role,
-        profileImage: updatedUser.profileImage || '/img/default-avatar.png', // Asegúrate de que el frontend reciba la ruta completa
-        message: 'Perfil actualizado con éxito',
-        user: updatedUser // Devolver el objeto de usuario actualizado para el frontend
+        avatarUrl: updatedUser.avatarUrl,
+        isActive: updatedUser.isActive
     });
 });
 
-
-// @desc    Update user role (Admin only)
+// @desc    Update user role (only for administrators)
 // @route   PUT /api/users/:id/role
 // @access  Private/Admin
 exports.updateUserRole = asyncHandler(async (req, res) => {
-    // Solo permitir si el usuario logueado es admin
-    if (req.user.role !== 'admin') {
-        res.status(403);
-        throw new Error('No autorizado. Solo administradores pueden cambiar roles.');
-    }
-
-    const userToUpdate = await User.findById(req.params.id);
-
-    if (!userToUpdate) {
-        res.status(404);
-        throw new Error('Usuario no encontrado');
-    }
-
-    // Un administrador no debe poder cambiar su propio rol o el rol de otro administrador
-    if (req.user._id.toString() === userToUpdate._id.toString()) {
-        res.status(400);
-        throw new Error('No puedes cambiar tu propio rol.');
-    }
-    // Si quieres evitar que un admin cambie el rol de otro admin:
-    if (userToUpdate.role === 'admin' && req.user._id.toString() !== userToUpdate._id.toString()) {
-        res.status(400);
-        throw new Error('No puedes cambiar el rol de otro administrador.');
-    }
-
+    const user = await User.findById(req.params.id);
     const { role } = req.body;
 
-    // Validar el nuevo rol
-    const validRoles = ['user', 'admin']; // Define tus roles válidos
-    if (!validRoles.includes(role)) {
-        res.status(400);
-        throw new Error('Rol inválido. Los roles permitidos son: ' + validRoles.join(', '));
+    if (!user) {
+        res.status(404);
+        throw new Error('Usuario no encontrado.');
     }
 
-    userToUpdate.role = role;
-    const updatedUser = await userToUpdate.save();
+    if (!role || (role !== 'user' && role !== 'admin')) {
+        res.status(400);
+        throw new Error('El rol debe ser "user" o "admin".');
+    }
+
+    // Evitar que un admin cambie su propio rol si es el único admin
+    if (user.role === 'admin' && role === 'user' && user._id.toString() === req.user._id.toString()) {
+        const adminCount = await User.countDocuments({ role: 'admin' });
+        if (adminCount <= 1) {
+            res.status(403);
+            throw new Error('No puedes degradar tu propio rol si eres el único administrador.');
+        }
+    }
+
+    user.role = role;
+    const updatedUser = await user.save();
 
     res.status(200).json({
-        _id: updatedUser._id,
-        username: updatedUser.username,
-        email: updatedUser.email,
-        role: updatedUser.role,
-        message: `Rol de ${updatedUser.username} actualizado a ${updatedUser.role}`
+        message: `Rol de usuario actualizado a ${updatedUser.role}.`,
+        user: {
+            _id: updatedUser._id,
+            username: updatedUser.username,
+            email: updatedUser.email,
+            role: updatedUser.role
+        }
     });
 });
 
-// @desc    Delete a user
+// @desc    Toggle user status (activate/deactivate)
+// @route   PUT /api/users/:id/status
+// @access  Private/Admin
+exports.toggleUserStatus = asyncHandler(async (req, res) => {
+    const { id } = req.params; // ID del usuario a modificar
+    const { isActive } = req.body; // Nuevo estado (true/false)
+
+    // Validar que isActive sea un booleano
+    if (typeof isActive !== 'boolean') {
+        res.status(400);
+        throw new Error('El campo isActive debe ser un booleano.');
+    }
+
+    // Buscar el usuario y actualizar su estado isActive
+    const user = await User.findById(id);
+
+    if (!user) {
+        res.status(404);
+        throw new Error('Usuario no encontrado.');
+    }
+
+    // Opcional: Evitar que un admin se desactive a sí mismo si no hay otros admins
+    if (user.role === 'admin' && isActive === false && user._id.toString() === req.user._id.toString()) {
+        const adminCount = await User.countDocuments({ role: 'admin', isActive: true });
+        if (adminCount <= 1) { // Si solo queda este admin activo
+            res.status(403);
+            throw new Error('No puedes desactivar tu propia cuenta de administrador si eres el único administrador activo.');
+        }
+    }
+    
+    user.isActive = isActive;
+    await user.save();
+
+    res.status(200).json({ 
+        message: `Usuario ${user.username} ha sido ${isActive ? 'activado' : 'desactivado'} exitosamente.`, 
+        user: {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            isActive: user.isActive,
+            avatarUrl: user.avatarUrl // Incluir el avatar si existe
+        }
+    });
+});
+
+// @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Private/Admin
 exports.deleteUser = asyncHandler(async (req, res) => {
-    // Solo permitir si el usuario logueado es admin
-    if (req.user.role !== 'admin') {
-        res.status(403);
-        throw new Error('No autorizado. Solo administradores pueden eliminar usuarios.');
-    }
+    const user = await User.findById(req.params.id);
 
-    const userToDelete = await User.findById(req.params.id);
-
-    if (!userToDelete) {
+    if (!user) {
         res.status(404);
-        throw new Error('Usuario no encontrado');
+        throw new Error('Usuario no encontrado.');
     }
 
-    // Un administrador no debe poder eliminarse a sí mismo
-    if (req.user._id.toString() === userToDelete._id.toString()) {
-        res.status(400);
-        throw new Error('No puedes eliminar tu propia cuenta de administrador.');
-    }
-
-    // === INICIO DE CORRECCIÓN PARA LA ELIMINACIÓN DEL AVATAR ANTIGUO ===
-    // Asumimos que '/img/default-avatar.png' es la ruta que se guarda en la DB
-    // para el avatar por defecto. Ajusta si tu default es solo 'default-avatar.png'
-    if (userToDelete.profileImage && userToDelete.profileImage !== '/img/default-avatar.png') {
-        let filenameToUnlink = userToDelete.profileImage;
-
-        // Si profileImage ya tiene la ruta completa (ej. '/img/avatars/filename.ext'),
-        // extraemos solo el nombre del archivo. Esto maneja la consistencia con las rutas antiguas.
-        if (filenameToUnlink.startsWith('/img/avatars/')) {
-            filenameToUnlink = path.basename(filenameToUnlink);
-        }
-
-        // Construye la ruta absoluta al archivo antiguo en `public/img/avatars/`
-        // path.join(__dirname, '..', '..') te lleva a la raíz del proyecto.
-        // Desde ahí, 'public', 'img', 'avatars' y luego el nombre del archivo.
-        const oldImagePath = path.join(__dirname, '..', '..', 'public', 'img', 'avatars', filenameToUnlink);
-        
-        try {
-            await fs.promises.unlink(oldImagePath);
-            console.log(`Avatar antiguo eliminado: ${oldImagePath}`);
-        } catch (error) {
-            if (error.code === 'ENOENT') {
-                console.warn(`Advertencia: Archivo de perfil no encontrado al intentar eliminar: ${oldImagePath}`);
-            } else {
-                console.error('Error al eliminar el archivo de imagen de perfil:', oldImagePath, error);
-            }
+    // Evitar que un admin se elimine a sí mismo si es el único admin
+    if (user.role === 'admin' && user._id.toString() === req.user._id.toString()) {
+        const adminCount = await User.countDocuments({ role: 'admin' });
+        if (adminCount <= 1) {
+            res.status(403);
+            throw new Error('No puedes eliminar tu propia cuenta de administrador si eres el único administrador.');
         }
     }
-    // === FIN DE CORRECCIÓN ===
 
-    await userToDelete.deleteOne(); // Mongoose 6+ usa deleteOne(), en versiones anteriores era remove()
+    // Eliminar el avatar del usuario si existe
+    if (user.avatarUrl && user.avatarUrl !== '/img/default-avatar.png') {
+        const avatarPath = path.join(__dirname, '..', '..', 'public', user.avatarUrl);
+        fs.unlink(avatarPath, (err) => {
+            if (err) console.error('Error al eliminar avatar antiguo:', err);
+        });
+    }
 
-    res.status(200).json({ message: 'Usuario eliminado con éxito.' });
+    await user.deleteOne(); // Usar deleteOne() para eliminar el documento
+
+    res.status(200).json({ message: 'Usuario eliminado exitosamente.' });
 });
 
 // @desc    Upload or update user avatar
 // @route   PUT /api/users/:id/avatar
 // @access  Private/User itself
 exports.updateUserAvatar = asyncHandler(async (req, res) => {
-    const userId = req.params.id;
-    const user = await User.findById(userId);
+    const user = await User.findById(req.params.id);
 
     if (!user) {
         res.status(404);
         throw new Error('Usuario no encontrado.');
     }
 
-    // Verificar si el usuario que sube el avatar es el dueño del perfil
-    if (req.user._id.toString() !== userId.toString()) {
+    // Permitir actualización si es el propio usuario
+    if (req.user._id.toString() !== user._id.toString()) {
         res.status(403);
-        throw new Error('No autorizado para actualizar el avatar de este usuario.');
+        throw new Error('No autorizado para actualizar este avatar.');
     }
 
-    // req.file contiene la información del archivo subido por Multer
-    if (!req.file) {
+    if (req.file) {
+        // Eliminar el avatar antiguo si no es el avatar por defecto
+        if (user.avatarUrl && user.avatarUrl !== '/img/default-avatar.png') {
+            const oldAvatarPath = path.join(__dirname, '..', '..', 'public', user.avatarUrl);
+            fs.unlink(oldAvatarPath, (err) => {
+                if (err) console.error('Error al eliminar avatar antiguo:', err);
+            });
+        }
+        // Guardar la nueva URL del avatar
+        user.avatarUrl = `/img/avatars/${req.file.filename}`;
+        await user.save();
+        res.status(200).json({ message: 'Avatar actualizado exitosamente.', avatarUrl: user.avatarUrl });
+    } else {
         res.status(400);
-        throw new Error('No se ha proporcionado ningún archivo para el avatar.');
+        throw new Error('No se ha subido ningún archivo.');
     }
-
-    // === INICIO DE CORRECCIÓN PARA LA ELIMINACIÓN DEL AVATAR ANTIGUO ===
-    // Si ya existe una imagen de perfil y NO es la predeterminada, eliminarla
-    // Asumimos que '/img/default-avatar.png' es la ruta que se guarda en la DB
-    // para el avatar por defecto. Ajusta si tu default es solo 'default-avatar.png'
-    if (user.profileImage && user.profileImage !== '/img/default-avatar.png') { 
-        let filenameToUnlink = user.profileImage;
-
-        // Si profileImage ya tiene la ruta completa (ej. '/img/avatars/filename.ext'),
-        // extraemos solo el nombre del archivo. Esto maneja la consistencia con las rutas antiguas.
-        if (filenameToUnlink.startsWith('/img/avatars/')) {
-            filenameToUnlink = path.basename(filenameToUnlink);
-        }
-
-        // Construye la ruta absoluta al archivo antiguo en `public/img/avatars/`
-        // path.join(__dirname, '..', '..') te lleva a la raíz del proyecto.
-        // Desde ahí, 'public', 'img', 'avatars' y luego el nombre del archivo.
-        const oldImagePath = path.join(__dirname, '..', '..', 'public', 'img', 'avatars', filenameToUnlink);
-        
-        // Usar fs.promises.unlink para un manejo asíncrono y evitar errores no capturados
-        try {
-            await fs.promises.unlink(oldImagePath);
-            console.log(`Avatar antiguo eliminado: ${oldImagePath}`);
-        } catch (error) {
-            if (error.code === 'ENOENT') {
-                console.warn(`Advertencia: Avatar antiguo no encontrado al intentar eliminar: ${oldImagePath}`);
-            } else {
-                console.error('Error al eliminar el avatar antiguo:', oldImagePath, error);
-            }
-        }
-    }
-    // === FIN DE CORRECCIÓN ===
-
-    // Guardar la RUTA RELATIVA COMPLETA del avatar en la base de datos.
-    // Esto es lo que el frontend usará para el 'src' de la imagen.
-    user.profileImage = `/img/avatars/${req.file.filename}`; // <--- ¡LA CORRECCIÓN CLAVE!
-
-    await user.save();
-
-    res.status(200).json({
-        message: 'Avatar actualizado con éxito',
-        avatarUrl: user.profileImage // Devolver la ruta relativa completa al frontend
-    });
 });
 
-// @desc    Update user password
+// @desc    Change user password
 // @route   PUT /api/users/:id/password
 // @access  Private/User itself
 exports.changePassword = asyncHandler(async (req, res) => {
-    const userId = req.params.id;
-    const user = await User.findById(userId);
+    const user = await User.findById(req.params.id);
+    const { currentPassword, newPassword } = req.body;
 
     if (!user) {
         res.status(404);
         throw new Error('Usuario no encontrado.');
     }
 
-    // Verificar si el usuario que intenta cambiar la contraseña es el dueño del perfil
-    if (req.user._id.toString() !== userId.toString()) {
+    // Permitir cambio de contraseña si es el propio usuario
+    if (req.user._id.toString() !== user._id.toString()) {
         res.status(403);
         throw new Error('No autorizado para cambiar la contraseña de este usuario.');
     }
 
-    const { email, oldPassword, newPassword } = req.body;
-
-    // Validar que se proporcionen las contraseñas
-    if (!oldPassword || !newPassword) {
-        res.status(400);
-        throw new Error('Por favor, proporciona la contraseña actual y la nueva contraseña.');
-    }
-
-    // Validar que el email proporcionado coincide con el del usuario
-    if (user.email !== email) {
-        res.status(400);
-        throw new Error('El email proporcionado no coincide con el usuario actual.');
-    }
-
     // Verificar la contraseña actual
-    const isMatch = await bcrypt.compare(oldPassword, user.password);
-    if (!isMatch) {
+    if (!currentPassword || !(await bcrypt.compare(currentPassword, user.password))) {
         res.status(401);
-        throw new Error('La contraseña actual es incorrecta.');
+        throw new Error('Contraseña actual incorrecta.');
     }
 
     // Validar la nueva contraseña (ej. longitud mínima)
-    if (newPassword.length < 6) {
+    if (!newPassword || newPassword.length < 6) {
         res.status(400);
         throw new Error('La nueva contraseña debe tener al menos 6 caracteres.');
     }
 
-    // Hashear la nueva contraseña
+    // Encriptar y guardar la nueva contraseña
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
-
     await user.save();
 
-    res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
+    res.status(200).json({ message: 'Contraseña actualizada exitosamente.' });
 });
-
 
 // @desc    Get user activity (purchases and cart)
 // @route   GET /api/users/:id/activity
@@ -386,7 +335,7 @@ exports.getUserActivity = asyncHandler(async (req, res) => {
     }
 
     const user = await User.findById(userId)
-        .select('purchases cartActivity') // Seleccionar solo los campos de actividad
+        .select('purchases cartActivity') // Seleccionar solo los campos de actividad relevantes
         // Si 'purchases' es una referencia a 'Order', podrías usar .populate('purchases') aquí
         // para obtener los detalles completos de las compras.
         .lean(); // .lean() para obtener un objeto JS plano y no un documento Mongoose, es más rápido para lectura.
@@ -401,8 +350,7 @@ exports.getUserActivity = asyncHandler(async (req, res) => {
     // tendrías que consultarlos aquí y agregarlos a `userActivity`.
     const userActivity = {
         purchases: user.purchases || [],
-        cartActivity: user.cartActivity || [],
-        message: 'Datos de actividad cargados.'
+        cartActivity: user.cartActivity || [], // Asumiendo que tienes un campo cartActivity en tu modelo User
     };
 
     res.status(200).json(userActivity);

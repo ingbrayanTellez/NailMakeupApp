@@ -1,222 +1,207 @@
 // backend/controllers/orderController.js
-
 const asyncHandler = require('express-async-handler');
-const Order = require('../models/Order');
-const Cart = require('../models/Cart');
-const Product = require('../models/Product');
-const User = require('../models/User'); // Asegurarse de importar el modelo User si se usa
+const Order = require('../models/Order'); // Asegúrate de que la ruta a tu modelo Order sea correcta
+const User = require('../models/User'); // Para poblar información del usuario si es necesario
+const Product = require('../models/Product'); // Para verificar stock al crear un pedido
 
-// @desc    Crear una nueva orden a partir del carrito del usuario autenticado.
+// @desc    Create a new order
 // @route   POST /api/orders
-// @access  Private (rol 'user')
+// @access  Private (users can create their own orders)
 exports.createOrder = asyncHandler(async (req, res) => {
-    // req.user.id viene del middleware 'protect'
-    console.log('DEBUG: createOrder - req.user:', req.user);
+    const { items, shippingInfo, paymentMethod, paymentDetails } = req.body;
 
-    if (req.user.role !== 'user') {
-        res.status(403);
-        throw new Error('Acceso denegado. Solo los usuarios pueden realizar pedidos.');
-    }
-
-    const userId = req.user.id;
-    // La información de envío y método de pago viene del frontend (checkout.js)
-    const { shippingInfo, paymentMethod } = req.body; 
-
-    console.log('DEBUG: createOrder - Buscando carrito para userId:', userId);
-
-    // Obtener el carrito del usuario y poblar los detalles del producto
-    const cart = await Cart.findOne({ userId }).populate('items.productId');
-
-    console.log('DEBUG: createOrder - Carrito encontrado:', cart);
-    if (cart) {
-        console.log('DEBUG: createOrder - Ítems en el carrito:', cart.items.length);
-    }
-
-    if (!cart || cart.items.length === 0) {
+    if (!items || items.length === 0) {
         res.status(400);
-        throw new Error('El carrito está vacío. Por favor, añade productos antes de finalizar el pedido.');
+        throw new Error('No hay ítems en el pedido.');
+    }
+    if (!shippingInfo) {
+        res.status(400);
+        throw new Error('La información de envío es requerida.');
+    }
+    if (!paymentMethod) {
+        res.status(400);
+        throw new Error('El método de pago es requerido.');
     }
 
     let totalAmount = 0;
     const orderItems = [];
-    const bulkOperations = []; // Para actualizar el stock de productos de manera eficiente
 
-    for (const item of cart.items) {
-        const product = await Product.findById(item.productId._id);
-
+    // Verificar stock y calcular el total
+    for (const item of items) {
+        const product = await Product.findById(item.productId);
         if (!product) {
             res.status(404);
-            throw new Error(`Producto no encontrado en la base de datos: ${item.productId.name}.`);
+            throw new Error(`Producto no encontrado: ${item.name || item.productId}`);
         }
         if (product.stock < item.quantity) {
             res.status(400);
-            throw new Error(`Stock insuficiente para ${product.name}. Solo quedan ${product.stock} unidades.`);
+            throw new Error(`Stock insuficiente para el producto: ${product.name}. Disponible: ${product.stock}, Solicitado: ${item.quantity}`);
         }
 
-        // Preparar los ítems para la orden
+        // Reducir stock
+        product.stock -= item.quantity;
+        await product.save();
+
+        totalAmount += product.price * item.quantity;
+
         orderItems.push({
             productId: product._id,
             name: product.name,
             quantity: item.quantity,
             price: product.price,
-            imageUrl: product.imageUrl
-        });
-        totalAmount += item.quantity * product.price;
-
-        // Preparar la operación para decrementar el stock
-        bulkOperations.push({
-            updateOne: {
-                filter: { _id: product._id },
-                update: { $inc: { stock: -item.quantity } }
-            }
+            imageUrl: product.imageUrl // Guarda la URL de la imagen del producto
         });
     }
 
-    // Ejecutar todas las actualizaciones de stock de una vez
-    if (bulkOperations.length > 0) {
-        await Product.bulkWrite(bulkOperations);
-    }
-
-    // Crear la nueva orden
-    const order = new Order({
-        userId: userId,
+    const order = await Order.create({
+        user: req.user._id, // El ID del usuario autenticado
         items: orderItems,
-        total: totalAmount, // Usar 'total' en lugar de 'totalAmount' si tu modelo Order usa 'total'
-        shippingInfo: shippingInfo,
-        status: 'pending', // Estado inicial
-        paymentMethod: paymentMethod || 'credit-card', // Método de pago por defecto
-        paymentStatus: 'paid' // Asumimos que el pago fue exitoso por la simulación del frontend
+        total: totalAmount,
+        shippingInfo,
+        paymentMethod,
+        paymentDetails,
+        status: 'pending', // Estado inicial del pedido
+        paymentStatus: 'paid' // Asumiendo que el pago se realiza al crear el pedido
     });
 
-    await order.save(); // Guardar la orden en la base de datos
-
-    // Vaciar el carrito del usuario después de crear el pedido
-    cart.items = [];
-    await cart.save();
-
-    res.status(201).json({ message: 'Pedido realizado con éxito y carrito vaciado.', orderId: order._id, order });
+    res.status(201).json({ message: 'Pedido creado exitosamente.', order });
 });
 
-// @desc    Obtener todas las órdenes del usuario autenticado.
-// @route   GET /api/orders/me
-// @access  Private (rol 'user')
+
+// @desc    Get all orders for the logged in user
+// @route   GET /api/orders/myorders
+// @access  Private
 exports.getMyOrders = asyncHandler(async (req, res) => {
-    // req.user.id viene del middleware 'protect'
-    console.log('DEBUG: getMyOrders - req.user:', req.user);
-
-    // No es necesario verificar el rol aquí si la ruta solo es para usuarios.
-    // El middleware 'protect' ya asegura que hay un usuario autenticado.
-    // Si quisieras restringir solo a rol 'user', podrías hacer:
-    // if (req.user.role !== 'user') {
-    //     res.status(403);
-    //     throw new Error('Acceso denegado. Solo los usuarios pueden ver sus propios pedidos.');
-    // }
-
-    const userId = req.user.id;
-    // Buscar órdenes por el userId y poblar los detalles de los productos
-    const orders = await Order.find({ userId })
-                              .populate('items.productId', 'name price imageUrl') // Popula los detalles del producto
-                              .sort({ createdAt: -1 }); // Ordena por fecha de creación descendente
-
-    // El frontend espera un array directamente, no un objeto { orders: [...] }
+    const orders = await Order.find({ user: req.user._id }).populate('user', 'username email');
     res.status(200).json(orders);
 });
 
-// @desc    Obtener todas las órdenes (Solo para administradores)
-// @route   GET /api/orders/admin
-// @access  Private (Admin)
+
+// @desc    Get all orders (for admin)
+// @route   GET /api/admin/orders
+// @access  Private/Admin
 exports.getAllOrders = asyncHandler(async (req, res) => {
-    // authorizeRoles('admin') ya maneja la verificación de rol
-    try {
-        const orders = await Order.find({})
-                                  .populate('userId', 'username email') 
-                                  .sort({ createdAt: -1 });
-        res.status(200).json(orders); // Devolver array directamente
-    } catch (error) {
-        console.error('Error al obtener todas las órdenes (admin):', error);
-        res.status(500).json({ message: 'Error interno del servidor al obtener todas las órdenes.' });
+    const pageSize = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const searchTerm = req.query.search ? req.query.search.toLowerCase() : '';
+    const statusFilter = req.query.status || '';
+
+    let query = {};
+
+    if (statusFilter) {
+        query.status = statusFilter;
     }
+
+    if (searchTerm) {
+        // Buscar por ID de pedido o por nombre de usuario del pedido
+        const userIds = await User.find({ username: { $regex: searchTerm, $options: 'i' } }).select('_id');
+        query.$or = [
+            { _id: searchTerm }, // Buscar por ID de pedido
+            { 'user': { $in: userIds.map(user => user._id) } } // Buscar por usuario
+        ];
+    }
+
+    const count = await Order.countDocuments(query);
+    const orders = await Order.find(query)
+        .populate('user', 'username email') // Popula el usuario que hizo el pedido
+        .limit(pageSize)
+        .skip(pageSize * (page - 1));
+
+    res.status(200).json({
+        orders,
+        page,
+        pages: Math.ceil(count / pageSize),
+        totalOrders: count
+    });
 });
 
-// @desc    Actualizar el estado de una orden (Solo para administradores)
-// @route   PUT /api/orders/:orderId/status
-// @access  Private (Admin)
-exports.updateOrderStatus = asyncHandler(async (req, res) => {
-    const { orderId } = req.params;
-    const { status } = req.body;
-
-    if (!['pending', 'processing', 'shipped', 'delivered', 'cancelled'].includes(status)) {
-        res.status(400);
-        throw new Error('Estado de orden inválido.');
-    }
-
-    const order = await Order.findByIdAndUpdate(orderId, { status, updatedAt: Date.now() }, { new: true });
+// @desc    Get single order details (for user itself or admin via /api/orders/:id)
+// @route   GET /api/orders/:id
+// @access  Private
+exports.getOrderDetail = asyncHandler(async (req, res) => {
+    const order = await Order.findById(req.params.id).populate('user', 'username email');
 
     if (!order) {
         res.status(404);
-        throw new Error('Orden no encontrada.');
+        throw new Error('Pedido no encontrado.');
     }
 
-    res.status(200).json({ message: `Estado de la orden ${orderId} actualizado a ${status}.`, order });
+    // Permitir acceso si es el propio usuario o un administrador
+    if (order.user._id.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
+        res.status(403);
+        throw new Error('No autorizado para ver este pedido.');
+    }
+
+    res.status(200).json(order);
 });
 
-// @desc    Eliminar una orden (Solo para administradores)
-// @route   DELETE /api/orders/:id
-// @access  Private (Admin)
+// @desc    Get single order by ID (for admin only, specifically for /api/admin/orders/:id)
+// @route   GET /api/admin/orders/:id
+// @access  Private/Admin
+exports.getSingleOrder = asyncHandler(async (req, res) => {
+    const order = await Order.findById(req.params.id)
+        .populate('user', 'username email') // Popula la información del usuario
+        .populate({
+            path: 'items.productId', // Si tus items tienen un productId que referencia a Product
+            select: 'name imageUrl price' // Selecciona los campos que quieres mostrar del producto
+        });
+
+    if (!order) {
+        res.status(404);
+        throw new Error('Pedido no encontrado.');
+    }
+
+    // No se necesita validación de rol aquí, ya que el middleware authorizeRoles('admin')
+    // en la ruta ya asegura que solo los administradores accedan a esta función.
+    res.status(200).json(order);
+});
+
+
+// @desc    Update order status (for admin)
+// @route   PUT /api/admin/orders/:id/status
+// @access  Private/Admin
+exports.updateOrderStatus = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+        res.status(400);
+        throw new Error('El estado del pedido es requerido.');
+    }
+
+    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    if (!validStatuses.includes(status)) {
+        res.status(400);
+        throw new Error(`Estado de pedido inválido. Los estados válidos son: ${validStatuses.join(', ')}`);
+    }
+
+    const order = await Order.findById(id);
+
+    if (!order) {
+        res.status(404);
+        throw new Error('Pedido no encontrado.');
+    }
+
+    order.status = status;
+    const updatedOrder = await order.save();
+
+    res.status(200).json({ message: 'Estado del pedido actualizado exitosamente.', order: updatedOrder });
+});
+
+// @desc    Delete an order (for admin - use with caution)
+// @route   DELETE /api/admin/orders/:id
+// @access  Private/Admin
 exports.deleteOrder = asyncHandler(async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id);
+    const { id } = req.params;
 
-        if (!order) {
-            res.status(404);
-            throw new Error('Orden no encontrada.');
-        }
+    const order = await Order.findById(id);
 
-        // Opcional: Revertir el stock si la orden se cancela o elimina
-        // for (let orderItem of order.items) {
-        //     await Product.findByIdAndUpdate(orderItem.productId, { $inc: { stock: orderItem.quantity } });
-        // }
-
-        await Order.findByIdAndDelete(req.params.id);
-
-        res.status(200).json({ message: 'Orden eliminada exitosamente.' });
-    } catch (error) {
-        console.error('Error al eliminar la orden:', error);
-        if (error.kind === 'ObjectId') {
-            res.status(400);
-            throw new Error('ID de orden inválido.');
-        }
-        res.status(500);
-        throw new Error('Error interno del servidor al eliminar la orden.');
+    if (!order) {
+        res.status(404);
+        throw new Error('Pedido no encontrado.');
     }
-});
 
-// @desc    Obtener una orden por ID
-// @route   GET /api/orders/:id
-// @access  Private (Admin o propietario de la orden)
-exports.getOrderById = asyncHandler(async (req, res) => {
-    try {
-        const order = await Order.findById(req.params.id).populate('user', 'username email').populate('items.productId', 'name price imageUrl');
+    await order.deleteOne();
 
-        if (!order) {
-            res.status(404);
-            throw new Error('Orden no encontrada.');
-        }
-
-        // Permitir acceso solo si es admin o el usuario propietario de la orden
-        if (req.user.role !== 'admin' && order.user._id.toString() !== req.user._id.toString()) {
-            res.status(403);
-            throw new Error('No autorizado para acceder a esta orden.');
-        }
-
-        res.status(200).json(order);
-    } catch (error) {
-        console.error('Error al obtener la orden por ID:', error);
-        if (error.kind === 'ObjectId') {
-            res.status(400);
-            throw new new Error('ID de orden inválido.');
-        }
-        res.status(500);
-        throw new Error('Error interno del servidor al obtener la orden.');
-    }
+    res.status(200).json({ message: 'Pedido eliminado exitosamente.' });
 });
